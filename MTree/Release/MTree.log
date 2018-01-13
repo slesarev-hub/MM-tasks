@@ -1,0 +1,7 @@
+﻿  Source.cpp
+Source.cpp(97): warning C4244: аргумент: преобразование "double" в "int", возможна потеря данных
+Source.cpp(98): warning C4244: аргумент: преобразование "double" в "int", возможна потеря данных
+  Создание кода
+  All 198 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Создание кода завершено
+  MTree.vcxproj -> C:\Projects\MTree\Release\MTree.exe

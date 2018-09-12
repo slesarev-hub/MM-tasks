@@ -76,6 +76,7 @@ void delete_all_tree_from_root(Node* root) {
     if (root->get_right() != nullptr) {
         delete_all_tree_from_root(root->get_right());
     }
+    delete root;
 }
 
 // delete tree by any node

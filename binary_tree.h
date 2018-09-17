@@ -1,6 +1,8 @@
 #ifndef BINARY_TREE_H
 #define BINARY_TREE_H
 
+#include <vector>
+
 class Data {
 public:
     Data(int value);
@@ -36,9 +38,16 @@ public:
     Node* get_right();
     Node* get_parent();
 
+    void levelOrderPrint();
+    std::vector<Data> direct_order_traversal();
+
+    void direct_order_traversal_print();
     void print(int space_counter = 0);
+
     bool insert(Data* inserting_data);
     bool insert(Node* inserting_node);
+
+    bool erase(int key);
 
 private:
     Data* data;

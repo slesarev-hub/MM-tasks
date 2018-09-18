@@ -5,13 +5,14 @@
 #include <vector>
 #include <queue>
 
-Data::Data(Data& new_data) {
+Data::Data(){};
+Data::Data(const Data& new_data) {
     this->value = new_data.value;
 }
 Data::Data(int value): value(value){}
 Data::~Data(){}
 
-Data& Data::operator= (const Data& other) {
+Data& Data::operator = (const Data& other) {
     if (this != &other)
     {
         this->value = other.value;
@@ -93,33 +94,64 @@ void delete_all_tree(Node* node) {
     delete_all_tree_from_root(current_node);
 }
 
-void Node::levelOrderPrint() {
+std::vector<Data> Node::level_order_traversal() {
     std::queue<Node*> nodes;
+    std::vector<Data> tree_elements(0);
+    Node* current_node = nullptr;
     nodes.push(this);
 
     while (!nodes.empty())
     {
-        Node* current_node = nodes.front();
+        current_node = nodes.front();
+        nodes.pop();
+        tree_elements.push_back(*current_node->data);
+
+        if (current_node->left != nullptr)
+        {
+            nodes.push(current_node->left);
+        }
+
+        if (current_node->right != nullptr)
+        {
+            nodes.push(current_node->right);
+        }
+    }
+    return tree_elements;
+}
+
+void Node::level_order_traversal_print() {
+    std::queue<Node*> nodes;
+    nodes.push(this);
+    Node* current_node = nullptr;
+
+    while (!nodes.empty())
+    {
+        current_node = nodes.front();
         nodes.pop();
         std::cout << current_node->get_data_value() << " ";
 
         if (current_node->left != nullptr)
+        {
             nodes.push(current_node->left);
+        }
 
         if (current_node->right != nullptr)
+        {
             nodes.push(current_node->right);
-   }
+        }
+    }
 }
-
 
 std::vector<Data> Node::direct_order_traversal()
 {
     std::stack<Node*> nodes;
     std::vector<Data> tree_elements(0);
     nodes.push(this);
-    while (nodes.empty() == false)
+    Node* current_node = nullptr;
+
+    while (!nodes.empty())
     {
-        Node* current_node = nodes.top();
+        current_node = nodes.top();
         nodes.pop();
         tree_elements.push_back(*current_node->data);
 
@@ -139,17 +171,19 @@ void Node::direct_order_traversal_print()
 {
     std::stack<Node*> nodes;
     nodes.push(this);
-    while (nodes.empty() == false)
+    Node* current_node = nullptr;
+
+    while (!nodes.empty())
     {
-        Node* current_node = nodes.top();
+        current_node = nodes.top();
         nodes.pop();
         std::cout << current_node->get_data_value() << " ";
 
-        if (current_node->right)
+        if (current_node->right != nullptr)
         {
             nodes.push(current_node->right);
         }
-        if (current_node->left)
+        if (current_node->left != nullptr)
         {
             nodes.push(current_node->left);
         }

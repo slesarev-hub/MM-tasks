@@ -5,8 +5,9 @@
 
 class Data {
 public:
+    Data();
     Data(int value);
-    Data(Data& new_data);
+    Data(const Data& new_data);
     ~Data();
 
     Data& operator = (const Data& other);
@@ -38,9 +39,10 @@ public:
     Node* get_right();
     Node* get_parent();
 
-    void levelOrderPrint();
     std::vector<Data> direct_order_traversal();
+    std::vector<Data> level_order_traversal();
 
+    void level_order_traversal_print();
     void direct_order_traversal_print();
     void print(int space_counter = 0);
 

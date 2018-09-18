@@ -27,8 +27,15 @@ void compare_trees(Node* tree_1, Node* tree_2) {
     }
 }
 
-Node* read_tree(std::ifstream& in) {
-    int nodes_count  = 0;
+void compare_data_vectors(std::vector<Data> data_1, std::vector<Data> data_2) {
+    ASSERT_EQ(data_1.size(), data_2.size());
+    for (size_t i = 0; i < data_1.size(); i++)
+    {
+        ASSERT_EQ(data_1[i].get(),data_2[i].get());
+    }
+}
+
+Node* read_tree(std::ifstream& in, int& nodes_count) {
     int current_data = 0;
 
     in >> nodes_count;
@@ -46,14 +53,32 @@ Node* read_tree(std::ifstream& in) {
 
 void read_and_run_traversal(std::string test_dir) {
     std::ifstream in(test_dir);
+    int nodes_count   = 0;
+    int currecnt_data = 0;
+
     std::cout << "stream status: " << in.is_open() << "\n";
-    Node* root = read_tree(in);
+    Node* root = read_tree(in, nodes_count);
+
+    std::vector<Data> direct_order_elements(static_cast<ulong>(nodes_count), Data(0));
+    for (size_t i = 0; static_cast<int>(i) < nodes_count; i++)
+    {
+        in >> currecnt_data;
+        direct_order_elements[i].set(currecnt_data);
+    }
     std::cout << "direct_order_traversal: ";
+    compare_data_vectors(direct_order_elements, root->direct_order_traversal());
     root->direct_order_traversal_print();
-    std::cout << "\ndirect_order_traversal: ";
-    root->direct_order_traversal_print();
+
+    std::vector<Data> level_order_elements(static_cast<ulong>(nodes_count), Data(0));
+    for (size_t i = 0; static_cast<int>(i) < nodes_count; i++)
+    {
+        in >> currecnt_data;
+        level_order_elements[i].set(currecnt_data);
+    }
+    std::cout << "\nlevel_order_traversal: ";
+    compare_data_vectors(level_order_elements, root->level_order_traversal());
+    root->level_order_traversal_print();
     std::cout << "\n";
-    root->levelOrderPrint();
     delete_all_tree(root);
     in.close();
 }
@@ -62,52 +87,29 @@ TEST(traversal, 0_0) {
     read_and_run_traversal("./test_0_0");
 }
 
-void read_and_run_insert_tests(std::string test_dir) {
-    std::ifstream in(test_dir);
-    std::cout << "stream status: " << in.is_open() << "\n";
-    Node* root = read_tree(in);
-    root->print();
-    delete_all_tree(root);
-    in.close();
-}
-/*
-TEST(insert, 1_1) {
-    read_and_run_insert_tests("./test_1_1");
-}
-
-TEST(insert, 1_2) {
-    read_and_run_insert_tests("./test_1_2");
-}
-
-TEST(insert, 1_3) {
-    read_and_run_insert_tests("./test_1_3");
-}
-*/
 void read_and_run_erase_tests(std::string test_dir) {
     std::ifstream in(test_dir);
+    int nodes_count      = 0;
     int operations_count = 0;
     in >> operations_count;
-    Node* tree = read_tree(in);
+    Node* tree = read_tree(in, nodes_count);
+    Node* correct_tree = nullptr;
     for (int i = 0; i < operations_count; i++)
     {
         int key = 0;
         in >> key;
-
         tree->erase(key);
-
         tree->print();
-        std::cout << "\n----" << key << "----"<< i << "----\n";
-        Node* correct_tree = read_tree(in);
-        correct_tree->print();
-        std::cout << "\n\n";
+        std::cout << "\n";
+        correct_tree = read_tree(in, nodes_count);
         compare_trees(correct_tree, tree);
         delete correct_tree;
     }
     in.close();
 }
 
-TEST(insert, 2_1) {
-    read_and_run_erase_tests("./test_2_1");
+TEST(insert, 1_0) {
+    read_and_run_erase_tests("./test_1_0");
 }
 
 int main(int argc, char *argv[])

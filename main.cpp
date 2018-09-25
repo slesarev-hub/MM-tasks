@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-using namespace testing;
+using namespace binary_tree;
 
 void compare_trees(Node* tree_1, Node* tree_2) {
     ASSERT_EQ(tree_1->get_data_value(), tree_2->get_data_value());
@@ -35,32 +35,39 @@ void compare_data_vectors(std::vector<Data> data_1, std::vector<Data> data_2) {
     }
 }
 
-Node* read_tree(std::ifstream& in, int& nodes_count) {
+Node* read_tree(std::ifstream& in, size_t& nodes_count) {
     int current_data = 0;
-
     in >> nodes_count;
-    in >> current_data;
-    Node* root         = new Node(current_data);
-    Node* current_node = nullptr;
-    for (int i = 0; i < nodes_count - 1; i++) {
-        in >> current_data;;
-        current_node = new Node(current_data);
-        root->insert(current_node);
+    try
+    {
+        if (nodes_count == 0)
+        {
+            throw "empty tree";
+        }
     }
-
+    catch (...)
+    {
+        return new Node();
+    }
+    in >> current_data;
+    Node* root = new Node(current_data);
+    for (size_t i = 0; i < nodes_count - 1; i++) {
+        in >> current_data;
+        root->insert(new Node(current_data));
+    }
     return root;
 }
 
 void read_and_run_traversal(std::string test_dir) {
     std::ifstream in(test_dir);
-    int nodes_count   = 0;
+    size_t nodes_count   = 0;
     int currecnt_data = 0;
 
     std::cout << "stream status: " << in.is_open() << "\n";
     Node* root = read_tree(in, nodes_count);
 
-    std::vector<Data> direct_order_elements(static_cast<ulong>(nodes_count), Data(0));
-    for (size_t i = 0; static_cast<int>(i) < nodes_count; i++)
+    std::vector<Data> direct_order_elements(nodes_count, Data(0));
+    for (size_t i = 0; i < nodes_count; i++)
     {
         in >> currecnt_data;
         direct_order_elements[i].set(currecnt_data);
@@ -69,8 +76,8 @@ void read_and_run_traversal(std::string test_dir) {
     compare_data_vectors(direct_order_elements, root->direct_order_traversal());
     root->direct_order_traversal_print();
 
-    std::vector<Data> level_order_elements(static_cast<ulong>(nodes_count), Data(0));
-    for (size_t i = 0; static_cast<int>(i) < nodes_count; i++)
+    std::vector<Data> level_order_elements(nodes_count, Data(0));
+    for (size_t i = 0; i < nodes_count; i++)
     {
         in >> currecnt_data;
         level_order_elements[i].set(currecnt_data);
@@ -89,11 +96,12 @@ TEST(traversal, 0_0) {
 
 void read_and_run_erase_tests(std::string test_dir) {
     std::ifstream in(test_dir);
-    int nodes_count      = 0;
+    size_t nodes_count   = 0;
     int operations_count = 0;
     in >> operations_count;
     Node* tree = read_tree(in, nodes_count);
-    Node* correct_tree = nullptr;
+    tree->print();
+    std::cout << "\n";
     for (int i = 0; i < operations_count; i++)
     {
         int key = 0;
@@ -101,16 +109,52 @@ void read_and_run_erase_tests(std::string test_dir) {
         tree->erase(key);
         tree->print();
         std::cout << "\n";
-        correct_tree = read_tree(in, nodes_count);
+        Node* correct_tree = read_tree(in, nodes_count);
         compare_trees(correct_tree, tree);
-        delete correct_tree;
+        delete_all_tree(correct_tree);
     }
+    delete_all_tree(tree);
     in.close();
 }
 
-TEST(insert, 1_0) {
+TEST(erase, 1_0) {
     read_and_run_erase_tests("./test_1_0");
 }
+/*
+TEST(erase, 1_1) {
+    read_and_run_erase_tests("./test_1_1");
+}
+
+void read_and_run_bulk_load_test(std::string test_dir) {
+    std::ifstream in(test_dir);
+    size_t nodes_count = 0;
+    int currecnt_data  = 0;
+    in >> nodes_count;
+    std::vector<Data> input_nodes(nodes_count, Data(0));
+
+    for (size_t i = 0; i < nodes_count; i++)
+    {
+        in >> currecnt_data;
+        input_nodes[i].set(currecnt_data);
+    }
+    Node* tree = bulk_load(input_nodes);
+    tree->print();
+    delete_all_tree(tree);
+}
+
+TEST(bulk_load, 2_0) {
+    read_and_run_bulk_load_test("./test_2_0");
+}
+
+TEST(bulk_load, 2_1) {
+    read_and_run_bulk_load_test("./test_2_1");
+}
+*/
+/*
+TEST(bulk_load, 2_2) {
+    read_and_run_bulk_load_test("./test_2_2");
+}
+*/
 
 int main(int argc, char *argv[])
 {

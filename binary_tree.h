@@ -3,6 +3,9 @@
 
 #include <vector>
 
+namespace binary_tree
+{
+
 class Data {
 public:
     Data();
@@ -12,7 +15,7 @@ public:
 
     Data& operator = (const Data& other);
 
-    int get();
+    int get() const;
     void set(int new_value);
 
 private:
@@ -21,14 +24,15 @@ private:
 
 class Node {
 public:
+    //Node(std::vector<Data>& data_vector, bool (*data_cmp)(const Data&, const Data&) = compare_data);
+    Node();
     Node(int data, Node* left = nullptr, Node* right = nullptr, Node* parent = nullptr);
     Node(Data data, Node* left = nullptr, Node* right = nullptr, Node* parent = nullptr);
     Node(Data* data, Node* left = nullptr, Node* right = nullptr, Node* parent = nullptr);
-    Node(Node& new_node);
     ~Node();
 
-    Data* get_data();
-    int   get_data_value();
+    Data* get_data() const;
+    int   get_data_value() const;
     void  set_data(Data new_data);
 
     void set_left(Node* new_left);
@@ -60,4 +64,10 @@ private:
 
 void delete_all_tree(Node* node);
 
+bool compare_data(const Data& d1, const Data& d2);
+
+Node* bulk_load(std::vector<Data>& data_vector, bool (*data_cmp)(const Data&, const Data&) = compare_data);
+}
+
 #endif // BINARY_TREE_H
+

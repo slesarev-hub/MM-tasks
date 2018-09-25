@@ -4,6 +4,11 @@
 #include <stack>
 #include <vector>
 #include <queue>
+#include <algorithm>
+
+namespace binary_tree {
+
+#define DEBUG
 
 Data::Data(){};
 Data::Data(const Data& new_data) {
@@ -20,12 +25,71 @@ Data& Data::operator = (const Data& other) {
     return *this;
 }
 
-int Data::get() {
+int Data::get() const {
     return this->value;
 }
 void Data::set(int new_value) {
     this->value = new_value;
 }
+
+bool compare_data(const Data& d1, const Data& d2) {
+    return d1.get() < d2.get();
+}
+
+void bulk_load_recursive_call(Node* root, const std::vector<Data>& data_vector, size_t left_bound, size_t right_bound) {
+    if (left_bound <= right_bound)
+    {
+        if (right_bound == left_bound)
+        {
+            #ifdef DEBUG
+            std::cout << "set: " << data_vector[left_bound].get() << " " << left_bound << " " << right_bound << "\n";
+            #endif
+            root->set_data(data_vector[left_bound].get());
+        }
+        else if (right_bound - 1 == left_bound)
+        {
+            #ifdef DEBUG
+            std::cout << "last: " << data_vector[left_bound].get() << " " << data_vector[right_bound].get() << "\n";
+            #endif
+            root->set_data(data_vector[left_bound].get());
+            root->set_right(new Node(data_vector[right_bound].get()));
+        }
+        else if ((right_bound + left_bound) % 2 == 0)
+        {
+            size_t middle_id = (right_bound + left_bound)/2;
+            root->set_data(data_vector[middle_id].get());
+            root->set_left(new Node(-1));
+            root->set_right(new Node(-1));
+            #ifdef DEBUG
+            std::cout << "set: " << data_vector[middle_id].get() << " " << left_bound << " " << middle_id << " " << right_bound << "\n";
+            std::cout << "bulk: " << left_bound << " " << middle_id - 1 << "\n";
+            std::cout << "bulk: " << middle_id + 1 << " " << right_bound << "\n";
+            #endif
+            bulk_load_recursive_call(root->get_left(), data_vector, left_bound, middle_id - 1);
+            bulk_load_recursive_call(root->get_right(), data_vector, middle_id + 1, right_bound);
+        }
+        else
+        {
+            size_t middle_id = (right_bound + left_bound + 1)/2;
+            #ifdef DEBUG
+            std::cout << "bulk: " << left_bound << " " << middle_id - 1 << "\n";
+            std::cout << "bulk: " << middle_id << " " << right_bound << "\n";
+            #endif
+            root->set_left(new Node(-1));
+            bulk_load_recursive_call(root->get_left(), data_vector, left_bound, middle_id - 1);
+            bulk_load_recursive_call(root, data_vector, middle_id, right_bound);
+        }
+    }
+}
+
+Node* bulk_load(std::vector<Data>& data_vector, bool (*data_cmp)(const Data&, const Data&)) {
+    sort(data_vector.begin(), data_vector.end(), data_cmp);
+    Node* root = new Node(-1);
+    bulk_load_recursive_call(root, data_vector, 0, data_vector.size() - 1);
+    return root;
+}
+
+Node::Node(): data(new Data(-1)){}
 
 Node::Node(int data, Node* left, Node* right, Node* parent)
     : data(new Data(data)), left(left), right(right), parent(parent){}
@@ -36,17 +100,18 @@ Node::Node(Data data, Node* left, Node* right, Node* parent)
 Node::Node(Data* data, Node* left, Node* right, Node* parent)
     : data(new Data(*data)), left(left), right(right), parent(parent){}
 
-Node::Node(Node& new_node)
-    : data(new_node.data), left(new_node.left), right(new_node.right){}
-
 Node::~Node(){
-    this->data->~Data();
+    delete this->data;
 }
 
-Data* Node::get_data() {
+Data* Node::get_data() const {
+    if (this->data == nullptr)
+    {
+        std::cerr << "get_data: nullptr returned\n";
+    }
     return this->data;
 }
-int  Node::get_data_value() {
+int  Node::get_data_value() const {
     return this->get_data()->get();
 }
 void Node::set_data(Data new_data) {
@@ -75,13 +140,13 @@ Node* Node::get_parent() {
 }
 
 void delete_all_tree_from_root(Node* root) {
-    delete root->get_data();
     if (root->get_left() != nullptr) {
         delete_all_tree_from_root(root->get_left());
     }
     if (root->get_right() != nullptr) {
         delete_all_tree_from_root(root->get_right());
     }
+
     delete root;
 }
 
@@ -192,9 +257,10 @@ void Node::direct_order_traversal_print()
 
 void Node::print(int space_counter) {
     if (this->data != nullptr) {
-        std::string s(static_cast<ulong>(space_counter), ' ');
+        std::string s(static_cast<ulong>(space_counter), '*');
         std::cout << s << this->get_data_value() << "\n";
     }
+
     else
     {
         std::cout << "NO_DATA\n";
@@ -320,40 +386,27 @@ bool Node::erase(int key) {
     }
 
     Node* node_iter = this;
+    Node* next_node = nullptr;
     while (node_iter != nullptr) {
         //searching node
-        if (key > node_iter->get_data_value())
+        next_node = (key > node_iter->get_data_value()) ? (node_iter->right) : (node_iter->left);
+        if (key == node_iter->get_data_value())
         {
-            if (node_iter->right != nullptr)
-            {
-                node_iter = node_iter->right;
-                continue;
-            }
-            else
-            {
-                return false;
-            }
+            break;
         }
-        else if (key < node_iter->get_data_value())
+        if (next_node != nullptr)
         {
-            if (node_iter->left != nullptr)
-            {
-                node_iter = node_iter->left;
-                continue;
-            }
-            else
-            {
-                return false;
-            }
+            node_iter = next_node;
         }
         else
         {
-            break;
+            std::cerr << "erase: no key " << key << "\n";
+            return false;
         }
     }
     if (node_iter == nullptr)
     {
-        std::cout << "Node::erase null node_iter\n";
+        std::cerr << "erase: no key " << key << "\n";
         return false;
     }
     Node* transfering_node = nullptr;
@@ -374,29 +427,40 @@ bool Node::erase(int key) {
         node_iter->left->parent = most_left;
     }
     //deleting-node has one child
-    else if ((node_iter->left != nullptr) || (node_iter->right != nullptr))
+    else if (((node_iter->left != nullptr) || (node_iter->right != nullptr)) && (node_iter->parent != nullptr))
     {
         Node* child = (node_iter->left == nullptr) ? (node_iter->right) : (node_iter->left);
         child->parent = node_iter->parent;
-        if (node_iter->get_data_value() > node_iter->parent->get_data_value())
+    }
+    //change deleting-node-parent (if deleting-node hasn't children, transfering-node = nullptr)
+    if (node_iter->parent != nullptr)
+    {
+        if (node_iter->parent->get_data_value() > node_iter->get_data_value())
         {
-            node_iter->parent->right = child;
+            node_iter->parent->left = transfering_node;
         }
         else
         {
-            node_iter->parent->left = child;
+            node_iter->parent->right = transfering_node;
         }
-    }
-    //change deleting-node-parent (if deleting-node hasn't children, transfering-node = nullptr)
-    if (node_iter->parent->get_data_value() > node_iter->get_data_value())
-    {
-        node_iter->parent->left = transfering_node;
     }
     else
     {
-        node_iter->parent->right = transfering_node;
+        node_iter = this->right;
+        if (this->right->left != nullptr)
+        {
+            this->right->left->parent = this;
+        }
+        if (this->right->right != nullptr)
+        {
+            this->right->right->parent = this;
+        }
+        this->set_data(this->right->get_data_value());
+        this->left  = this->right->left;
+        this->right = this->right->right;
     }
-
     delete node_iter;
     return true;
+}
+
 }

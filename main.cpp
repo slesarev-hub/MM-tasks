@@ -120,11 +120,15 @@ void read_and_run_erase_tests(std::string test_dir) {
 TEST(erase, 1_0) {
     read_and_run_erase_tests("./test_1_0");
 }
-/*
+
 TEST(erase, 1_1) {
     read_and_run_erase_tests("./test_1_1");
 }
 
+TEST(erase, 1_2) {
+    read_and_run_erase_tests("./test_1_2");
+}
+/*
 void read_and_run_bulk_load_test(std::string test_dir) {
     std::ifstream in(test_dir);
     size_t nodes_count = 0;

@@ -425,41 +425,53 @@ bool Node::erase(int key) {
         }
         most_left->left         = node_iter->left;
         node_iter->left->parent = most_left;
+        node_iter->left         = nullptr;
     }
-    //deleting-node has one child
-    else if (((node_iter->left != nullptr) || (node_iter->right != nullptr)) && (node_iter->parent != nullptr))
+    //now node_iter can has no more than one child
+    Node* child = (node_iter->right != nullptr) ? (node_iter->right) : (node_iter->left);
+
+    if ((node_iter->parent == nullptr) && (child != nullptr))
     {
-        Node* child = (node_iter->left == nullptr) ? (node_iter->right) : (node_iter->left);
-        child->parent = node_iter->parent;
+        Node* left_child  = child->left;
+        Node* right_child = child->right;
+
+        this->set_data(child->get_data_value());
+        this->left  = child->left;
+        this->right = child->right;
+        delete child;
+        if (left_child != nullptr)
+        {
+            left_child->parent = this;
+        }
+        if (right_child != nullptr)
+        {
+            right_child->parent = this;
+        }
     }
-    //change deleting-node-parent (if deleting-node hasn't children, transfering-node = nullptr)
-    if (node_iter->parent != nullptr)
+    else if ((node_iter->parent == nullptr) && (child == nullptr))
     {
+        std::cerr << "erase: last element\n";
+        return false;
+    }
+    else if (node_iter->parent != nullptr)
+    {
+        if (child != nullptr)
+        {
+            child->parent = node_iter->parent;
+        }
         if (node_iter->parent->get_data_value() > node_iter->get_data_value())
         {
-            node_iter->parent->left = transfering_node;
+            node_iter->parent->left = child;
         }
         else
         {
-            node_iter->parent->right = transfering_node;
+            node_iter->parent->right = child;
         }
     }
-    else
+    if (this != node_iter)
     {
-        node_iter = this->right;
-        if (this->right->left != nullptr)
-        {
-            this->right->left->parent = this;
-        }
-        if (this->right->right != nullptr)
-        {
-            this->right->right->parent = this;
-        }
-        this->set_data(this->right->get_data_value());
-        this->left  = this->right->left;
-        this->right = this->right->right;
+        delete node_iter;
     }
-    delete node_iter;
     return true;
 }
 

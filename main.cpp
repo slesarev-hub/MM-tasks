@@ -128,37 +128,57 @@ TEST(erase, 1_1) {
 TEST(erase, 1_2) {
     read_and_run_erase_tests("./test_1_2");
 }
-/*
-void read_and_run_bulk_load_test(std::string test_dir) {
+
+void read_and_insert_sequence_test(std::string test_dir) {
     std::ifstream in(test_dir);
     size_t nodes_count = 0;
-    int currecnt_data  = 0;
-    in >> nodes_count;
-    std::vector<Data> input_nodes(nodes_count, Data(0));
+    //read tree
+    Node* tree = read_tree(in, nodes_count);
 
-    for (size_t i = 0; i < nodes_count; i++)
+    //read path to node
+    Node* node = tree;
+    int path_length = 0;
+    in >> path_length;
+    for (int i = 0; i < path_length; i++)
     {
-        in >> currecnt_data;
-        input_nodes[i].set(currecnt_data);
+        int way = -1;
+        in >> way;
+        if (way == 0)
+        {
+            node = node->get_left();
+        }
+        if (way == 1)
+        {
+            node = node->get_right();
+        }
     }
-    Node* tree = bulk_load(input_nodes);
+
+    //read elements
+    int elements_count = 0;
+    in >> elements_count;
+
+    std::vector<Data> sequence(0);
+    for (int i = 0; i < elements_count; i++)
+    {
+        int current_value;
+        in >> current_value;
+        sequence.push_back(Data(current_value));
+    }
+
+    //read bounds
+    int bound = -1;
+    in >> bound;
+    std::vector<Data>::iterator left_bound = sequence.begin() + bound;
+    in >> bound;
+    std::vector<Data>::iterator right_bound = sequence.begin() + bound;
+
+    insert_sequence(node, left_bound, right_bound);
     tree->print();
-    delete_all_tree(tree);
 }
 
-TEST(bulk_load, 2_0) {
-    read_and_run_bulk_load_test("./test_2_0");
+TEST(erase, 2_0) {
+    read_and_run_erase_tests("./test_2_0");
 }
-
-TEST(bulk_load, 2_1) {
-    read_and_run_bulk_load_test("./test_2_1");
-}
-*/
-/*
-TEST(bulk_load, 2_2) {
-    read_and_run_bulk_load_test("./test_2_2");
-}
-*/
 
 int main(int argc, char *argv[])
 {

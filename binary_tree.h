@@ -66,7 +66,11 @@ void delete_all_tree(Node* node);
 
 bool compare_data(const Data& d1, const Data& d2);
 
-Node* bulk_load(std::vector<Data>& data_vector, bool (*data_cmp)(const Data&, const Data&) = compare_data);
+void insert_sequence(Node* node,
+                     std::vector<Data>::iterator left_bound, std::vector<Data>::iterator right_bound,
+                     bool (*cmp)(const Data&, const Data&) = compare_data);
+
+void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const Data&, const Data&) = compare_data);
 }
 
 #endif // BINARY_TREE_H

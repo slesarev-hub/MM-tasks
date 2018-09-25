@@ -36,59 +36,66 @@ bool compare_data(const Data& d1, const Data& d2) {
     return d1.get() < d2.get();
 }
 
-void bulk_load_recursive_call(Node* root, const std::vector<Data>& data_vector, size_t left_bound, size_t right_bound) {
-    if (left_bound <= right_bound)
+void insert_sequence(Node* node,
+                     std::vector<Data>::iterator left_bound, std::vector<Data>::iterator right_bound,
+                     bool (*cmp)(const Data&, const Data&))
+{
+    if (left_bound == right_bound)
     {
-        if (right_bound == left_bound)
-        {
-            #ifdef DEBUG
-            std::cout << "set: " << data_vector[left_bound].get() << " " << left_bound << " " << right_bound << "\n";
-            #endif
-            root->set_data(data_vector[left_bound].get());
-        }
-        else if (right_bound - 1 == left_bound)
-        {
-            #ifdef DEBUG
-            std::cout << "last: " << data_vector[left_bound].get() << " " << data_vector[right_bound].get() << "\n";
-            #endif
-            root->set_data(data_vector[left_bound].get());
-            root->set_right(new Node(data_vector[right_bound].get()));
-        }
-        else if ((right_bound + left_bound) % 2 == 0)
-        {
-            size_t middle_id = (right_bound + left_bound)/2;
-            root->set_data(data_vector[middle_id].get());
-            root->set_left(new Node(-1));
-            root->set_right(new Node(-1));
-            #ifdef DEBUG
-            std::cout << "set: " << data_vector[middle_id].get() << " " << left_bound << " " << middle_id << " " << right_bound << "\n";
-            std::cout << "bulk: " << left_bound << " " << middle_id - 1 << "\n";
-            std::cout << "bulk: " << middle_id + 1 << " " << right_bound << "\n";
-            #endif
-            bulk_load_recursive_call(root->get_left(), data_vector, left_bound, middle_id - 1);
-            bulk_load_recursive_call(root->get_right(), data_vector, middle_id + 1, right_bound);
-        }
-        else
-        {
-            size_t middle_id = (right_bound + left_bound + 1)/2;
-            #ifdef DEBUG
-            std::cout << "bulk: " << left_bound << " " << middle_id - 1 << "\n";
-            std::cout << "bulk: " << middle_id << " " << right_bound << "\n";
-            #endif
-            root->set_left(new Node(-1));
-            bulk_load_recursive_call(root->get_left(), data_vector, left_bound, middle_id - 1);
-            bulk_load_recursive_call(root, data_vector, middle_id, right_bound);
-        }
+        node->set_data(*left_bound);
+    }
+    else
+    {
+        node->set_left(new Node());
+        node->get_left()->set_parent(node);
+        node->set_right(new Node());
+        node->get_right()->set_parent(node);
+        insert_sequence(node->get_left(), left_bound, std::lower_bound(left_bound, right_bound, *node->get_data(), cmp));
+        insert_sequence(node->get_right(), std::upper_bound(left_bound, right_bound, *node->get_data(), cmp), right_bound);
+    }
+}
+/*
+void load_to_node(Node* node,
+                  std::vector<Data>::iterator ll_bound, std::vector<Data>::iterator lr_bound,
+                  std::vector<Data>::iterator rl_bound, std::vector<Data>::iterator rr_bound,
+                  bool (*cmp)(const Data&, const Data&) = compare_data)
+{
+    if (node->get_left() == nullptr)
+    {
+        node->set_left(new Node());
+        node->get_left()->set_parent(node);
+        insert_sequence(node->get_left(), ll_bound, lr_bound);
+    }
+    else
+    {
+        load_to_node(node->get_left(),
+                     ll_bound,  std::lower_bound(ll_bound, lr_bound, node->get_data(), cmp),
+                     std::upper_bound(ll_bound, lr_bound, node->get_data(), cmp), lr_bound);
+    }
+    if (node->get_right() == nullptr)
+    {
+        node->set_right(new Node());
+        node->get_right()->set_parent(node);
+        insert_sequence(node->get_right(), rl_bound, rr_bound);
+    }
+    else
+    {
+        load_to_node(node->get_right(),
+                     rl_bound,  std::lower_bound(rl_bound, rr_bound, node->get_data(), cmp),
+                     std::upper_bound(rl_bound, rr_bound, node->get_data(), cmp), rr_bound);
     }
 }
 
-Node* bulk_load(std::vector<Data>& data_vector, bool (*data_cmp)(const Data&, const Data&)) {
-    sort(data_vector.begin(), data_vector.end(), data_cmp);
-    Node* root = new Node(-1);
-    bulk_load_recursive_call(root, data_vector, 0, data_vector.size() - 1);
-    return root;
+void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const Data&, const Data&))
+{
+    //note: add repeat elements deleting
+    std::sort(loading_elements.begin(), loading_elements.end(), cmp);
+    //std::vector<Data>::iterator element = loading_elements.begin();
+    load_to_node(root,
+                 loading_elements.begin(), std::lower_bound(loading_elements.begin(), loading_elements.end(), root->get_data(), cmp),
+                 std::upper_bound(loading_elements.begin(), loading_elements.end(), root->get_data(), cmp), loading_elements.end());
 }
-
+*/
 Node::Node(): data(new Data(-1)){}
 
 Node::Node(int data, Node* left, Node* right, Node* parent)

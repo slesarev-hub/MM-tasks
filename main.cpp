@@ -58,7 +58,7 @@ Node* read_tree(std::ifstream& in, size_t& nodes_count) {
     return root;
 }
 
-void read_and_run_traversal(std::string test_dir) {
+void read_and_run_traversal_tests(std::string test_dir) {
     std::ifstream in(test_dir);
     size_t nodes_count   = 0;
     int currecnt_data = 0;
@@ -91,7 +91,7 @@ void read_and_run_traversal(std::string test_dir) {
 }
 
 TEST(traversal, 0_0) {
-    read_and_run_traversal("./test_0_0");
+    read_and_run_traversal_tests("./test_0_0");
 }
 
 void read_and_run_erase_tests(std::string test_dir) {
@@ -129,7 +129,7 @@ TEST(erase, 1_2) {
     read_and_run_erase_tests("./test_1_2");
 }
 
-void read_and_insert_sequence_test(std::string test_dir) {
+void read_and_run_insert_sequence_tests(std::string test_dir) {
     std::ifstream in(test_dir);
     size_t nodes_count = 0;
     //read tree
@@ -138,17 +138,31 @@ void read_and_insert_sequence_test(std::string test_dir) {
     //read path to node
     Node* node = tree;
     int path_length = 0;
+    int way = -1;
     in >> path_length;
-    for (int i = 0; i < path_length; i++)
+    if (path_length != 0)
     {
-        int way = -1;
+        for (int i = 0; i < path_length - 1; i++)
+        {
+            in >> way;
+            if (way == 0)
+            {
+                node = node->get_left();
+            }
+            if (way == 1)
+            {
+                node = node->get_right();
+            }
+        }
         in >> way;
         if (way == 0)
         {
+            node->set_left(new Node());
             node = node->get_left();
         }
         if (way == 1)
         {
+            node->set_right(new Node());
             node = node->get_right();
         }
     }
@@ -166,18 +180,31 @@ void read_and_insert_sequence_test(std::string test_dir) {
     }
 
     //read bounds
-    int bound = -1;
-    in >> bound;
-    std::vector<Data>::iterator left_bound = sequence.begin() + bound;
-    in >> bound;
-    std::vector<Data>::iterator right_bound = sequence.begin() + bound;
-
-    insert_sequence(node, left_bound, right_bound);
+    int left_bound = -1;
+    int right_bound = -1;
+    in >> left_bound >> right_bound;
+    insert_sequence(node, sequence.begin() ,left_bound, right_bound);
     tree->print();
+
+    //read correct tree
+    Node* correct_tree = read_tree(in, nodes_count);
+    compare_trees(correct_tree, tree);
 }
 
-TEST(erase, 2_0) {
-    read_and_run_erase_tests("./test_2_0");
+TEST(insert_sequence, 2_0) {
+    read_and_run_insert_sequence_tests("./test_2_0");
+}
+
+TEST(insert_sequence, 2_1) {
+    read_and_run_insert_sequence_tests("./test_2_1");
+}
+
+TEST(insert_sequence, 2_2) {
+    read_and_run_insert_sequence_tests("./test_2_2");
+}
+
+TEST(insert_sequence, 2_3) {
+    read_and_run_insert_sequence_tests("./test_2_3");
 }
 
 int main(int argc, char *argv[])

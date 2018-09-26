@@ -24,7 +24,6 @@ private:
 
 class Node {
 public:
-    //Node(std::vector<Data>& data_vector, bool (*data_cmp)(const Data&, const Data&) = compare_data);
     Node();
     Node(int data, Node* left = nullptr, Node* right = nullptr, Node* parent = nullptr);
     Node(Data data, Node* left = nullptr, Node* right = nullptr, Node* parent = nullptr);
@@ -55,6 +54,8 @@ public:
 
     bool erase(int key);
 
+    bool is_filled();
+
 private:
     Data* data;
     Node* left;
@@ -67,7 +68,8 @@ void delete_all_tree(Node* node);
 bool compare_data(const Data& d1, const Data& d2);
 
 void insert_sequence(Node* node,
-                     std::vector<Data>::iterator left_bound, std::vector<Data>::iterator right_bound,
+                     std::vector<Data>::iterator beginnig,
+                     int left_bound, int right_bound,
                      bool (*cmp)(const Data&, const Data&) = compare_data);
 
 void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const Data&, const Data&) = compare_data);

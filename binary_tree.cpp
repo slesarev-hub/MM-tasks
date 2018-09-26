@@ -36,22 +36,50 @@ bool compare_data(const Data& d1, const Data& d2) {
     return d1.get() < d2.get();
 }
 
+Data get_element(std::vector<Data>::iterator beginnig, int index)
+{
+    return (*(beginnig + index));
+}
+
 void insert_sequence(Node* node,
-                     std::vector<Data>::iterator left_bound, std::vector<Data>::iterator right_bound,
+                     std::vector<Data>::iterator beginning,
+                     int left_bound, int right_bound,
                      bool (*cmp)(const Data&, const Data&))
 {
-    if (left_bound == right_bound)
+    if (!node->is_filled() && (left_bound + 1 == right_bound))
     {
-        node->set_data(*left_bound);
+        node->set_data(get_element(beginning, left_bound).get());
+    }
+    else if (node->is_filled())
+    {
+        std::cerr << "insert_sequence: node " << node->get_data_value()
+                  << " was already filled when tried to insert " << get_element(beginning, left_bound).get() << "\n";
     }
     else
     {
-        node->set_left(new Node());
-        node->get_left()->set_parent(node);
-        node->set_right(new Node());
-        node->get_right()->set_parent(node);
-        insert_sequence(node->get_left(), left_bound, std::lower_bound(left_bound, right_bound, *node->get_data(), cmp));
-        insert_sequence(node->get_right(), std::upper_bound(left_bound, right_bound, *node->get_data(), cmp), right_bound);
+        int setting_index    = (left_bound + right_bound -1 -(left_bound + right_bound) % 2)/2;
+        Data setting_element = get_element(beginning, setting_index);
+        std::vector<Data>::iterator new_right_bound = std::lower_bound(beginning + left_bound, beginning + right_bound, setting_element, cmp);
+        std::vector<Data>::iterator new_left_bound = std::upper_bound(beginning + left_bound, beginning + right_bound, setting_element, cmp);
+
+        if (!node->is_filled())
+        {
+            node->set_data(setting_element);
+        }
+        else
+        {
+            new_right_bound++;
+        }
+        if (beginning + left_bound != new_right_bound)
+        {
+            node->set_left(new Node());
+            insert_sequence(node->get_left(), beginning, left_bound, static_cast<int>(new_right_bound - beginning));
+        }
+        if (beginning + right_bound != new_left_bound)
+        {
+            node->set_right(new Node());
+            insert_sequence(node->get_right(), beginning, static_cast<int>(new_left_bound - beginning), right_bound);
+        }
     }
 }
 /*
@@ -96,7 +124,7 @@ void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const
                  std::upper_bound(loading_elements.begin(), loading_elements.end(), root->get_data(), cmp), loading_elements.end());
 }
 */
-Node::Node(): data(new Data(-1)){}
+Node::Node(): data(new Data(-1)), left(nullptr), right(nullptr), parent(nullptr){}
 
 Node::Node(int data, Node* left, Node* right, Node* parent)
     : data(new Data(data)), left(left), right(right), parent(parent){}
@@ -109,6 +137,11 @@ Node::Node(Data* data, Node* left, Node* right, Node* parent)
 
 Node::~Node(){
     delete this->data;
+}
+
+bool Node::is_filled()
+{
+    return (this->get_data_value() != -1);
 }
 
 Data* Node::get_data() const {
@@ -127,10 +160,12 @@ void Node::set_data(Data new_data) {
 }
 
 void Node::set_left(Node* new_left) {
-    this->left = new_left;
+    this->left       = new_left;
+    new_left->parent = this;
 }
 void Node::set_right(Node* new_right) {
-    this->right = new_right;
+    this->right       = new_right;
+    new_right->parent = this;
 }
 void Node::set_parent(Node* new_parent) {
     this->parent = new_parent;
@@ -267,16 +302,13 @@ void Node::print(int space_counter) {
         std::string s(static_cast<ulong>(space_counter), '*');
         std::cout << s << this->get_data_value() << "\n";
     }
-
     else
     {
         std::cout << "NO_DATA\n";
     }
-
     if (this->left != nullptr) {
         this->left->print(space_counter + 1);
     }
-
     if (this->right != nullptr) {
         this->right->print(space_counter + 1);
     }

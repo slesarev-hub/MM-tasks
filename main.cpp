@@ -231,16 +231,12 @@ void read_and_run_find_node_to_load_tests(std::string test_dir) {
     //read bounds
     int bound = -1;
     in >> bound;
-    std::vector<Data>::iterator ll = sequence.begin() + bound;
+    std::vector<Data>::iterator l = sequence.begin() + bound;
     in >> bound;
-    std::vector<Data>::iterator lr = sequence.begin() + bound;
-    in >> bound;
-    std::vector<Data>::iterator rl = sequence.begin() + bound;
-    in >> bound;
-    std::vector<Data>::iterator rr = sequence.begin() + bound;
+    std::vector<Data>::iterator r = sequence.begin() + bound;
 
     //apply
-    find_node_to_load(tree, sequence.begin(), ll, lr, rl, rr);
+    find_node_to_load(tree, sequence.begin(), l, r);
     tree->print();
 
     //read correct tree

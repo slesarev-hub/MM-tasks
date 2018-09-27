@@ -8,8 +8,6 @@
 
 namespace binary_tree {
 
-#define DEBUG
-
 Data::Data(){};
 Data::Data(const Data& new_data) {
     this->value = new_data.value;
@@ -51,11 +49,13 @@ void insert_sequence(Node* node,
 {
     if (!node->is_filled() && (left_bound + 1 == right_bound))
     {
+        #ifdef DEBUG
         if (node->get_parent() != nullptr)
         {
             std::cout << node->get_parent()->get_data_value();
         }
         std::cout << " set: " << get_element(beginning, left_bound).get() << "\n";
+        #endif
         node->set_data(get_element(beginning, left_bound).get());
     }
     else if (node->is_filled())
@@ -72,12 +72,13 @@ void insert_sequence(Node* node,
 
         if (!node->is_filled())
         {
+            #ifdef DEBUG
             if (node->get_parent() != nullptr)
             {
                 std::cout << node->get_parent()->get_data_value();
             }
             std::cout << " set: " <<  setting_element.get() << "\n";
-
+            #endif
             node->set_data(setting_element);
         }
         else
@@ -99,68 +100,93 @@ void insert_sequence(Node* node,
 
 void find_node_to_load(Node* node,
                   std::vector<Data>::iterator beginning,
-                  std::vector<Data>::iterator ll_bound, std::vector<Data>::iterator lr_bound,
-                  std::vector<Data>::iterator rl_bound, std::vector<Data>::iterator rr_bound,
+                  std::vector<Data>::iterator l_bound, std::vector<Data>::iterator r_bound,
                   bool (*cmp)(const Data&, const Data&))
 {
-    if (ll_bound != lr_bound)
+    std::vector<Data>::iterator new_r_bound = std::lower_bound(l_bound, r_bound, *node->get_data(), cmp);
+    std::vector<Data>::iterator new_l_bound = std::upper_bound(l_bound, r_bound, *node->get_data(), cmp);
+    #ifdef DEBUG
+    std::cout << "new_l: " << (*new_l_bound).get() << "\n";
+    std::cout << "new_r: " << (*new_r_bound).get() << "\n";
+    #endif
+    if (l_bound != new_r_bound)
     {
-        std::vector<Data>::iterator new_lr_bound = std::lower_bound(ll_bound, lr_bound, *node->get_data(), cmp);
-        std::vector<Data>::iterator new_rl_bound = std::upper_bound(ll_bound, lr_bound, *node->get_data(), cmp);
         if (node->get_left() == nullptr)
         {
-            std::cout << node->get_data_value() << " insert left: " << static_cast<int>(ll_bound - beginning) << " " << static_cast<int>(lr_bound - beginning) << "\n";
+            #ifdef DEBUG
+            std::cout << node->get_data_value() << " insert left: " << (*l_bound).get() << " " << (*new_r_bound).get() << "\n";
+            #endif
             node->set_left(new Node());
-            insert_sequence(node->get_left(), beginning, static_cast<int>(ll_bound - beginning), static_cast<int>(new_lr_bound - beginning));
+            insert_sequence(node->get_left(), beginning, static_cast<int>(l_bound - beginning), static_cast<int>(new_r_bound - beginning));
         }
         else
         {
-
-            std::cout << node->get_data_value() <<" load left: " << ll_bound - beginning<< " " << std::lower_bound(ll_bound, lr_bound, *node->get_data(), cmp) - beginning
-                      << " " << std::upper_bound(ll_bound, lr_bound, *node->get_data(), cmp)- beginning << " " << lr_bound- beginning << "\n";
-            find_node_to_load(node->get_left(),
-                              beginning,
-                              ll_bound, new_lr_bound,
-                              new_rl_bound, lr_bound);
+            #ifdef DEBUG
+            std::cout << node->get_data_value() <<" load left: " << (*l_bound).get() << " " << (*new_r_bound).get() << "\n";
+            #endif
+            find_node_to_load(node->get_left(), beginning, l_bound, new_r_bound);
         }
     }
-    if (rl_bound != rr_bound)
+    if (new_l_bound != r_bound)
     {
-        std::vector<Data>::iterator new_lr_bound = std::lower_bound(rl_bound, rr_bound, *node->get_data(), cmp);
-        std::vector<Data>::iterator new_rl_bound = std::upper_bound(rl_bound, rr_bound, *node->get_data(), cmp);
         if (node->get_right() == nullptr)
         {
-            std::cout << node->get_data_value() << " insert right: " << static_cast<int>(rl_bound - beginning) << " " << static_cast<int>(rr_bound - beginning) << "\n";
+            #ifdef DEBUG
+            std::cout << node->get_data_value() << " insert right: " << (*new_l_bound).get() << " " << (*r_bound).get() << "\n";
+            #endif
             node->set_right(new Node());
-            insert_sequence(node->get_right(), beginning, static_cast<int>(new_rl_bound - beginning), static_cast<int>(rr_bound - beginning));
+            insert_sequence(node->get_right(), beginning, static_cast<int>(new_l_bound - beginning), static_cast<int>(r_bound - beginning));
         }
         else
         {
-            std::cout << node->get_data_value() << " load right: " << rl_bound- beginning << " " << std::lower_bound(rl_bound, rr_bound, *node->get_data(), cmp) - beginning
-                      << " " << std::upper_bound(rl_bound, rr_bound, *node->get_data(), cmp)- beginning << " " << rr_bound- beginning << "\n";
-            find_node_to_load(node->get_right(),
-                              beginning,
-                              rl_bound,  new_lr_bound,
-                              new_rl_bound, rr_bound);
+            #ifdef DEBUG
+            std::cout << node->get_data_value() << " load right: " << (*new_l_bound).get() << " " << (*r_bound).get() << "\n";
+            #endif
+            find_node_to_load(node->get_right(), beginning, new_l_bound, r_bound);
         }
     }
 }
 
 void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const Data&, const Data&))
 {
-    sort(loading_elements.begin(), loading_elements.end(), cmp);
+    std::vector<Data>::iterator begin = loading_elements.begin();
+    std::vector<Data>::iterator end   = loading_elements.end();
+
+    sort(begin, end, cmp);
     //deleting equal elements
-    loading_elements.erase( unique( loading_elements.begin(), loading_elements.end()), loading_elements.end());
+    loading_elements.erase( unique(begin, end), end);
 
     if (!root->is_filled())
     {
-        root->set_data(std::move(loading_elements[loading_elements.size()/2]));
+        root->set_data(loading_elements[loading_elements.size()/2]);
+        #ifdef DEBUG
+        std::cout << "set root: " << root->get_data_value() << "\n";
+        #endif
     }
-
-    find_node_to_load(root,
-                      loading_elements.begin(),
-                      loading_elements.begin(), std::lower_bound(loading_elements.begin(), loading_elements.end(), *root->get_data(), cmp),
-                      std::upper_bound(loading_elements.begin(), loading_elements.end(), *root->get_data(), cmp), loading_elements.end());
+    std::vector<Data>::iterator lr_bound = std::lower_bound(begin, end, *root->get_data(), cmp);
+    std::vector<Data>::iterator rl_bound = std::upper_bound(begin, end, *root->get_data(), cmp);
+    if (lr_bound != begin)
+    {
+        if (root->get_left() == nullptr)
+        {
+            root->set_left(new Node(get_element(begin, static_cast<int>(lr_bound - begin)/2)));
+            #ifdef DEBUG
+            std::cout << "set root left: " << root->get_left()->get_data_value() << "\n";
+            #endif
+        }
+        find_node_to_load(root->get_left(), begin, begin, lr_bound);
+    }
+    if (rl_bound != end)
+    {
+        if (root->get_right() == nullptr)
+        {
+            root->set_right(new Node(get_element(rl_bound, static_cast<int>(end - rl_bound)/2)));
+            #ifdef DEBUG
+            std::cout << "set root right: " << end - begin << " " << rl_bound - begin << " " <<  root->get_right()->get_data_value() << "\n";
+            #endif
+        }
+        find_node_to_load(root->get_right(), begin, rl_bound, end);
+    }
 }
 
 Node::Node(): data(new Data(-1)), left(nullptr), right(nullptr), parent(nullptr){}

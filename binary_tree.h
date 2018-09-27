@@ -75,8 +75,7 @@ void insert_sequence(Node* node,
 
 void find_node_to_load(Node* node,
                   std::vector<Data>::iterator beginning,
-                  std::vector<Data>::iterator ll_bound, std::vector<Data>::iterator lr_bound,
-                  std::vector<Data>::iterator rl_bound, std::vector<Data>::iterator rr_bound,
+                  std::vector<Data>::iterator l_bound, std::vector<Data>::iterator r_bound,
                   bool (*cmp)(const Data&, const Data&) = compare_data);
 
 void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const Data&, const Data&) = compare_data);

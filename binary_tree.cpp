@@ -68,7 +68,7 @@ void insert_sequence(Node* node,
         int setting_index    = (left_bound + right_bound -1 -(left_bound + right_bound) % 2)/2;
         Data setting_element = get_element(beginning, setting_index);
         std::vector<Data>::iterator new_right_bound = std::lower_bound(beginning + left_bound, beginning + right_bound, setting_element, cmp);
-        std::vector<Data>::iterator new_left_bound = std::upper_bound(beginning + left_bound, beginning + right_bound, setting_element, cmp);
+        std::vector<Data>::iterator new_left_bound  = std::upper_bound(beginning + left_bound, beginning + right_bound, setting_element, cmp);
 
         if (!node->is_filled())
         {

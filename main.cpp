@@ -192,6 +192,8 @@ void read_and_run_insert_sequence_tests(std::string test_dir) {
     //read correct tree
     Node* correct_tree = read_tree(in, nodes_count);
     compare_trees(correct_tree, tree);
+    delete_all_tree(tree);
+    delete_all_tree(correct_tree);
 }
 
 TEST(insert_sequence, 2_0) {
@@ -242,6 +244,8 @@ void read_and_run_find_node_to_load_tests(std::string test_dir) {
     //read correct tree
     Node* correct_tree = read_tree(in, nodes_count);
     compare_trees(correct_tree, tree);
+    delete_all_tree(tree);
+    delete_all_tree(correct_tree);
 }
 
 TEST(find_node_to_load, 3_0) {
@@ -277,6 +281,8 @@ void read_and_run_bulk_load_tests(std::string test_dir) {
     //read correct tree
     Node* correct_tree = read_tree(in, nodes_count);
     compare_trees(correct_tree, tree);
+    delete_all_tree(tree);
+    delete_all_tree(correct_tree);
 }
 
 TEST(bulk_load, 4_0) {

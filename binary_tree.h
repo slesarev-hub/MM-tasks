@@ -14,6 +14,7 @@ public:
     ~Data();
 
     Data& operator = (const Data& other);
+    bool  operator == (const Data& other);
 
     int get() const;
     void set(int new_value);
@@ -71,6 +72,12 @@ void insert_sequence(Node* node,
                      std::vector<Data>::iterator beginnig,
                      int left_bound, int right_bound,
                      bool (*cmp)(const Data&, const Data&) = compare_data);
+
+void find_node_to_load(Node* node,
+                  std::vector<Data>::iterator beginning,
+                  std::vector<Data>::iterator ll_bound, std::vector<Data>::iterator lr_bound,
+                  std::vector<Data>::iterator rl_bound, std::vector<Data>::iterator rr_bound,
+                  bool (*cmp)(const Data&, const Data&) = compare_data);
 
 void bulk_load(Node* root, std::vector<Data> loading_elements, bool (*cmp)(const Data&, const Data&) = compare_data);
 }

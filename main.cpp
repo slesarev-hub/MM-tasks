@@ -63,7 +63,7 @@ void read_and_run_traversal_tests(std::string test_dir) {
     size_t nodes_count   = 0;
     int currecnt_data = 0;
 
-    std::cout << "stream status: " << in.is_open() << "\n";
+    //read tree
     Node* root = read_tree(in, nodes_count);
 
     std::vector<Data> direct_order_elements(nodes_count, Data(0));
@@ -99,6 +99,7 @@ void read_and_run_erase_tests(std::string test_dir) {
     size_t nodes_count   = 0;
     int operations_count = 0;
     in >> operations_count;
+
     Node* tree = read_tree(in, nodes_count);
     tree->print();
     std::cout << "\n";
@@ -183,6 +184,8 @@ void read_and_run_insert_sequence_tests(std::string test_dir) {
     int left_bound = -1;
     int right_bound = -1;
     in >> left_bound >> right_bound;
+
+    //apply
     insert_sequence(node, sequence.begin() ,left_bound, right_bound);
     tree->print();
 
@@ -205,6 +208,91 @@ TEST(insert_sequence, 2_2) {
 
 TEST(insert_sequence, 2_3) {
     read_and_run_insert_sequence_tests("./test_2_3");
+}
+
+void read_and_run_find_node_to_load_tests(std::string test_dir) {
+    std::ifstream in(test_dir);
+    size_t nodes_count = 0;
+    //read tree
+    Node* tree = read_tree(in, nodes_count);
+
+    //read elements
+    int elements_count = 0;
+    in >> elements_count;
+
+    std::vector<Data> sequence(0);
+    for (int i = 0; i < elements_count; i++)
+    {
+        int current_value;
+        in >> current_value;
+        sequence.push_back(Data(current_value));
+    }
+
+    //read bounds
+    int bound = -1;
+    in >> bound;
+    std::vector<Data>::iterator ll = sequence.begin() + bound;
+    in >> bound;
+    std::vector<Data>::iterator lr = sequence.begin() + bound;
+    in >> bound;
+    std::vector<Data>::iterator rl = sequence.begin() + bound;
+    in >> bound;
+    std::vector<Data>::iterator rr = sequence.begin() + bound;
+
+    //apply
+    find_node_to_load(tree, sequence.begin(), ll, lr, rl, rr);
+    tree->print();
+
+    //read correct tree
+    Node* correct_tree = read_tree(in, nodes_count);
+    compare_trees(correct_tree, tree);
+}
+
+TEST(find_node_to_load, 3_0) {
+    read_and_run_find_node_to_load_tests("./test_3_0");
+}
+
+TEST(find_node_to_load, 3_1) {
+    read_and_run_find_node_to_load_tests("./test_3_1");
+}
+
+void read_and_run_bulk_load_tests(std::string test_dir) {
+    std::ifstream in(test_dir);
+    size_t nodes_count = 0;
+    //read tree
+    Node* tree = read_tree(in, nodes_count);
+
+    //read elements
+    int elements_count = 0;
+    in >> elements_count;
+
+    std::vector<Data> sequence(0);
+    for (int i = 0; i < elements_count; i++)
+    {
+        int current_value;
+        in >> current_value;
+        sequence.push_back(Data(current_value));
+    }
+
+    //apply
+    bulk_load(tree, sequence);
+    tree->print();
+
+    //read correct tree
+    Node* correct_tree = read_tree(in, nodes_count);
+    compare_trees(correct_tree, tree);
+}
+
+TEST(bulk_load, 4_0) {
+    read_and_run_bulk_load_tests("./test_4_0");
+}
+
+TEST(bulk_load, 4_1) {
+    read_and_run_bulk_load_tests("./test_4_1");
+}
+
+TEST(bulk_load, 4_2) {
+    read_and_run_bulk_load_tests("./test_4_2");
 }
 
 int main(int argc, char *argv[])

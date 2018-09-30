@@ -275,6 +275,7 @@ void read_and_run_bulk_load_tests(std::string test_dir) {
     }
 
     //apply
+    tree->print();
     bulk_load(tree, sequence);
     tree->print();
 

@@ -1,6 +1,6 @@
 #include "node.h"
 
-namespace bplustree 
+namespace b_plus_tree
 {
 
 }

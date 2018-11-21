@@ -1,6 +1,6 @@
 #include "data.h"
 
-namespace bplustree 
+Data::Data()
 {
 
 }

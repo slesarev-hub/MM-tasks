@@ -1,9 +1,11 @@
 #ifndef DATA_H
 #define DATA_H
 
-namespace bplustree
-{
 
-}
+class Data
+{
+public:
+    Data();
+};
 
 #endif // DATA_H

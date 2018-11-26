@@ -47,7 +47,7 @@ public:
     //Node();
     //Node(const Node& parent);
     //Node(const Node* parent);
-    Node(std::shared_ptr<Node> parent);
+    //Node(std::shared_ptr<Node> parent);
 
     std::shared_ptr<Node>                 parent;
     std::vector<std::unique_ptr<Data<T>>> source;

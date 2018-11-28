@@ -6,5 +6,6 @@
 using namespace b_plus_tree;
 
 TEST(constructors, 1){
+    Tree<int> a;
 }
 

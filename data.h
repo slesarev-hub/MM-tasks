@@ -8,18 +8,22 @@ class Data
 {
 public:
     Data();
-    Data(T source);
+    Data(int key, T source);
+    ~Data();
 
-    T source;
+    int key;
+    T   source;
 };
 
 template<typename T>
 Data<T>::Data(){}
 
 template<typename T>
-Data<T>::Data(T source)
-    : source(source){}
+Data<T>::Data(int key, T source)
+    : key(key), source(source){}
 
+template<typename T>
+Data<T>::~Data(){}
 }
 
 #endif // DATA_H

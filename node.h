@@ -35,12 +35,6 @@ typedef std::shared_ptr<LeafNode>  SharedLeaf;
 typedef std::unique_ptr<Data>      UnData;
 
 template<typename T>
-struct SourceTraits;
-
-template<>
-struct SourceTraits<>
-
-template<typename T>
 void print(const T& node, std::ostream& os, size_t space_counter){
     os << std::string(space_counter, ' ') + "+inf\n";
     std::transform(node.source.begin(), node.source.end(), node.keys.begin(),

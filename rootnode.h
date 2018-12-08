@@ -12,12 +12,10 @@ public:
     RootNode(int tree_parameter);
     ~RootNode();
 
-    void print(std::ostream& os, int space_counter);
-
-    const int                            size_low_border = 1;
-    std::variant<std::vector<std::shared_ptr<InnerNode>>,
-                 std::vector<std::shared_ptr<LeafNode>>,
-                 std::vector<std::unique_ptr<Data>>>      source;
+    const int                         size_low_border = 1;
+    std::variant<std::vector<InnerP>,
+                 std::vector<LeafP>,
+                 std::vector<DataP>>  source;
 };
 
 };

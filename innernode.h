@@ -12,12 +12,14 @@ public:
     InnerNode(int tree_parameter);
     ~InnerNode();
 
+    void rebuilding_insert(DataP data);
+
     const int                        size_low_border = tree_parameter - 1;
     std::variant<RootP, InnerP>      parent;
-    std::variant<std::vector<InnerP>,
-                 std::vector<LeafP>> source;
+    std::variant<VectInnerP,
+                 VectLeafP> source;
 };
 
-};
+}
 
 #endif // INNERNODE_H

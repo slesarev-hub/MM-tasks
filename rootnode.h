@@ -12,11 +12,14 @@ public:
     RootNode(int tree_parameter);
     ~RootNode();
 
+    void rebuilding_insert(DataP data);
+
     const int                         size_low_border = 1;
-    std::variant<std::vector<InnerP>,
-                 std::vector<LeafP>,
-                 std::vector<DataP>>  source;
+    std::variant<VectInnerP,
+                 VectLeafP,
+                 VectDataP>  source;
 };
 
-};
+}
+
 #endif // ROOTNODE_H

@@ -11,28 +11,28 @@ Tree::Tree(int tree_parameter, int insert_parameter, int delete_parameter)
 Tree::~Tree(){}
 
 void Tree::rebuilding_insert(DataP data){
-    if (this->depth == 0)
+    auto* keys = &this->root->keys;
+    auto  it   = std::lower_bound(keys->begin(), keys->end(), data->key);
+    if ((it != keys->end()) && (*it == data->key))
     {
-        auto* keys        = &this->root->keys;
-        auto  it          = std::lower_bound(keys->begin(), keys->end(), data->key);
-        int   t           = this->root->tree_parameter;
-        auto* root_source = &std::get<std::vector<DataP>>(this->root->source);
+        std::cerr << "error: Tree::rebuilding_insert: key " << data->key << " already exists\n";
+    }
+    int   t           = this->root->tree_parameter;
+    int   idx         = static_cast<int>(it - keys->begin());
 
-        if ((it != keys->end()) && (*it == data->key))
-        {
-            std::cerr << "error: Tree::rebuilding_insert - key " << data->key << " already exists\n";
-        }
-        int idx = static_cast<int>(it - keys->begin());
+    if (std::holds_alternative<VectDataP>(this->root->source))
+    {
+        auto* root_source = &std::get<VectDataP>(this->root->source);
         keys->insert(it, data->key);
         root_source->insert(root_source->begin() + idx, data);
 
-        if (keys->size() == this->root->size_up_border)
+        if (static_cast<int>(keys->size()) == this->root->size_up_border)
         {
             auto left_node    = std::make_shared<LeafNode>(LeafNode(t));
             auto right_node   = std::make_shared<LeafNode>(LeafNode(t));
 
-            left_node->source  = std::vector<DataP>();
-            right_node->source = std::vector<DataP>();
+            left_node->source  = VectDataP();
+            right_node->source = VectDataP();
             std::move(std::move(root_source->begin(),
                                 root_source->begin() + t,
                                 left_node->source.begin()),
@@ -40,8 +40,8 @@ void Tree::rebuilding_insert(DataP data){
                       right_node->source.begin());
             root_source->clear();
 
-            this->root->source = std::vector<LeafP>();
-            auto* root_source  = &std::get<std::vector<LeafP>>(this->root->source);
+            this->root->source = VectLeafP();
+            auto* root_source  = &std::get<VectLeafP>(this->root->source);
             root_source->push_back(left_node);
             root_source->push_back(right_node);
 
@@ -55,6 +55,16 @@ void Tree::rebuilding_insert(DataP data){
             this->depth++;
         }
     }
+    else if (std::holds_alternative<VectLeafP>(this->root->source))
+    {
+        auto* root_source = &std::get<VectLeafP>(this->root->source);
+        root_source->at(idx)->rebuilding_insert(data);
+    }
+    else if (std::holds_alternative<VectInnerP>(this->root->source))
+    {
+        auto* root_source = &std::get<VectInnerP>(this->root->source);
+        root_source->at(idx)->rebuilding_insert(data);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Tree& t)
@@ -64,9 +74,9 @@ std::ostream& operator<<(std::ostream& os, const Tree& t)
        << " insert parameter: " << t.insert_parameter
        << " delete parameter: " << t.delete_parameter
        << "\n";
-    print(t.root, os, 0);
+    print<RootP>(t.root,os,0);
     return os;
 }
 
 
-};
+}

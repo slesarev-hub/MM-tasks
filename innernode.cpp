@@ -10,4 +10,6 @@ InnerNode::InnerNode(int tree_parameter)
 
 InnerNode::~InnerNode(){}
 
-};
+void InnerNode::rebuilding_insert(DataP data){}
+
+}

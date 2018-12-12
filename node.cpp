@@ -6,7 +6,7 @@ namespace b_plus_tree
 {
 
 Node::Node()
-    : tree_parameter(2){}
+    : tree_parameter(1){}
 
 Node::Node(int tree_parameter)
     : tree_parameter(tree_parameter){}

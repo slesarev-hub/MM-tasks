@@ -11,6 +11,7 @@
 #include <iterator>
 #include <type_traits>
 #include <typeinfo>
+#include <climits>
 
 namespace b_plus_tree{
 
@@ -27,6 +28,9 @@ typedef std::vector<InnerP> VectInnerP;
 typedef std::vector<LeafP>  VectLeafP;
 typedef std::vector<DataP>  VectDataP;
 
+const int max_key = INT_MAX;
+const int min_key = INT_MIN;
+
 class Node
 {
 public:
@@ -34,10 +38,11 @@ public:
     Node(int tree_parameter);
     virtual ~Node();
 
-    virtual void rebuilding_insert(DataP data);
+    //virtual void split();
+    //virtual void rebuilding_insert(DataP data);
 
     const int        tree_parameter;
-    const int        size_up_border  = 2*tree_parameter + 1;
+    const int        size_up_border  = 2*tree_parameter;
     std::vector<int> keys;
 };
 

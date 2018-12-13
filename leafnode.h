@@ -12,12 +12,13 @@ public:
     LeafNode(int tree_parameter);
     ~LeafNode();
 
-    void rebuilding_insert(DataP data);
+    //void split();
+    //void rebuilding_insert(DataP data);
 
-    const int                    size_low_border = tree_parameter - 1;
-    std::variant<RootP, InnerP>  parent;
-    LeafP                        next;
-    VectDataP           source;
+    const int                   size_low_border = tree_parameter;
+    std::variant<RootP,InnerP>  parent;
+    LeafP                       next;
+    VectDataP                   source;
 };
 
 };

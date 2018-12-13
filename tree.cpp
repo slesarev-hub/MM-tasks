@@ -11,7 +11,9 @@ Tree::Tree(int tree_parameter, int insert_parameter, int delete_parameter)
 Tree::~Tree(){}
 
 void Tree::rebuilding_insert(DataP data){
-    auto* keys = &this->root->keys;
+    rebuilder<RootP,DataP>(this->root,data);
+
+    /*auto* keys = &this->root->keys;
     auto  it   = std::lower_bound(keys->begin(), keys->end(), data->key);
     if ((it != keys->end()) && (*it == data->key))
     {
@@ -58,13 +60,17 @@ void Tree::rebuilding_insert(DataP data){
     else if (std::holds_alternative<VectLeafP>(this->root->source))
     {
         auto* root_source = &std::get<VectLeafP>(this->root->source);
-        root_source->at(idx)->rebuilding_insert(data);
+        rebuilding_insert<RootP,DataP>(root_source->at(idx),data);
+        //root_source->at(idx)->rebuilding_insert(data);
     }
     else if (std::holds_alternative<VectInnerP>(this->root->source))
     {
         auto* root_source = &std::get<VectInnerP>(this->root->source);
-        root_source->at(idx)->rebuilding_insert(data);
+        rebuilding_insert(root_source->at(idx),data);
+        //root_source->at(idx)->rebuilding_insert(data);
     }
+    */
+
 }
 
 std::ostream& operator<<(std::ostream& os, const Tree& t)

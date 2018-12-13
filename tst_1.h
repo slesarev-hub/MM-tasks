@@ -6,7 +6,7 @@
 using namespace b_plus_tree;
 
 TEST(constructors, 1){
-    Tree t(2,1,1);
+    Tree t(1,1,1);
     DataP a2 = std::make_shared<Data>(Data(2,"a2"));
     t.rebuilding_insert(a2);
     std::cout << t;

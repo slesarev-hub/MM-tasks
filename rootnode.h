@@ -12,9 +12,9 @@ public:
     RootNode(int tree_parameter);
     ~RootNode();
 
-    void rebuilding_insert(DataP data);
+    //void rebuilding_insert(DataP data);
 
-    const int                         size_low_border = 1;
+    const int                size_low_border = 1;
     std::variant<VectInnerP,
                  VectLeafP,
                  VectDataP>  source;

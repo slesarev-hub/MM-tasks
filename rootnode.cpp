@@ -10,6 +10,6 @@ RootNode::RootNode(int tree_parameter)
 
 RootNode::~RootNode(){}
 
-void RootNode::rebuilding_insert(DataP data){}
+//void RootNode::rebuilding_insert(DataP data){}
 
 }

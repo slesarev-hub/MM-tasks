@@ -91,7 +91,7 @@ void read_and_run_traversal_tests(std::string test_dir) {
 }
 
 TEST(traversal, 0_0) {
-    read_and_run_traversal_tests("./test_0_0");
+    read_and_run_traversal_tests("./test_0_0.txt");
 }
 
 void read_and_run_erase_tests(std::string test_dir) {
@@ -119,15 +119,15 @@ void read_and_run_erase_tests(std::string test_dir) {
 }
 
 TEST(erase, 1_0) {
-    read_and_run_erase_tests("./test_1_0");
+    read_and_run_erase_tests("./test_1_0.txt");
 }
 
 TEST(erase, 1_1) {
-    read_and_run_erase_tests("./test_1_1");
+    read_and_run_erase_tests("./test_1_1.txt");
 }
 
 TEST(erase, 1_2) {
-    read_and_run_erase_tests("./test_1_2");
+    read_and_run_erase_tests("./test_1_2.txt");
 }
 
 void read_and_run_insert_sequence_tests(std::string test_dir) {
@@ -197,19 +197,19 @@ void read_and_run_insert_sequence_tests(std::string test_dir) {
 }
 
 TEST(insert_sequence, 2_0) {
-    read_and_run_insert_sequence_tests("./test_2_0");
+    read_and_run_insert_sequence_tests("./test_2_0.txt");
 }
 
 TEST(insert_sequence, 2_1) {
-    read_and_run_insert_sequence_tests("./test_2_1");
+    read_and_run_insert_sequence_tests("./test_2_1.txt");
 }
 
 TEST(insert_sequence, 2_2) {
-    read_and_run_insert_sequence_tests("./test_2_2");
+    read_and_run_insert_sequence_tests("./test_2_2.txt");
 }
 
 TEST(insert_sequence, 2_3) {
-    read_and_run_insert_sequence_tests("./test_2_3");
+    read_and_run_insert_sequence_tests("./test_2_3.txt");
 }
 
 void read_and_run_find_node_to_load_tests(std::string test_dir) {
@@ -249,11 +249,11 @@ void read_and_run_find_node_to_load_tests(std::string test_dir) {
 }
 
 TEST(find_node_to_load, 3_0) {
-    read_and_run_find_node_to_load_tests("./test_3_0");
+    read_and_run_find_node_to_load_tests("./test_3_0.txt");
 }
 
 TEST(find_node_to_load, 3_1) {
-    read_and_run_find_node_to_load_tests("./test_3_1");
+    read_and_run_find_node_to_load_tests("./test_3_1.txt");
 }
 
 void read_and_run_bulk_load_tests(std::string test_dir) {
@@ -287,15 +287,15 @@ void read_and_run_bulk_load_tests(std::string test_dir) {
 }
 
 TEST(bulk_load, 4_0) {
-    read_and_run_bulk_load_tests("./test_4_0");
+    read_and_run_bulk_load_tests("./test_4_0.txt");
 }
 
 TEST(bulk_load, 4_1) {
-    read_and_run_bulk_load_tests("./test_4_1");
+    read_and_run_bulk_load_tests("./test_4_1.txt");
 }
 
 TEST(bulk_load, 4_2) {
-    read_and_run_bulk_load_tests("./test_4_2");
+    read_and_run_bulk_load_tests("./test_4_2.txt");
 }
 
 int main(int argc, char *argv[])

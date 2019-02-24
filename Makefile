@@ -1,10 +1,10 @@
 CXX       = g++
-CXXFLAGS  = --std=c++14 
+CXXFLAGS  = --std=c++17 
 LIBS      = /usr/lib/libgtest.a /usr/lib/libgtest_main.a -lpthread
 SRCS      = $(wildcard *.cpp) 
 OBJS      = $(filter %.o,$(SRCS:.cpp=.o) $(SRCS:.cc=.o))
 
-det_calc: $(OBJS)
+det_calc_test: $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LIBS)  
 
 %.o: %.cc 

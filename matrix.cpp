@@ -3,9 +3,23 @@
 #include <iostream>
 #include <istream>
 #include <ostream>
+#include <mutex>
+#include <thread>
+#include <memory>
 
-namespace matrix_determinant
+namespace matrix
 {
+
+bool Matrix::is_parallel = false;
+std::atomic<int> Matrix::workers_max(3);
+std::atomic<int> Matrix::workers_count(0);
+
+Matrix::Matrix()
+    : size(0)
+{}
+
+Matrix::~Matrix()
+{}
 
 Matrix::Matrix(int size)
 {
@@ -13,7 +27,7 @@ Matrix::Matrix(int size)
     this->source.assign(size,std::vector<int>(size,-1));
 }
 
-Matrix::Matrix(const Matrix& other)
+Matrix::Matrix(Matrix const& other)
 {
     this->size   = other.size;
     this->source = other.source;
@@ -24,7 +38,7 @@ bool Matrix::operator==(const Matrix& other)
     return (this->source == other.source);
 }
 
-Matrix& Matrix::operator=(const Matrix& other)
+Matrix& Matrix::operator=(Matrix const& other)
 {
     if (this->size == other.size)
     {
@@ -46,6 +60,17 @@ Matrix& Matrix::operator=(const Matrix& other)
 int Matrix::get_size() const
 {
     return this->size;
+}
+
+void Matrix::set_is_parallel(bool is_parallel)
+{
+    Matrix::is_parallel = is_parallel;
+}
+
+void Matrix::set_workers(int max, int count)
+{
+    Matrix::workers_max = max;
+    Matrix::workers_count = count;
 }
 
 std::vector<int>& Matrix::operator[](int idx)
@@ -119,9 +144,9 @@ Matrix Matrix::select_minor(int row, int col) const
 
 long long calculate_determinant(const Matrix& m)
 {
-    if (m.get_size() == 0)
+    if (m.get_size() == 1)
     {
-        return 1;
+        return m[0][0];
     }
     int       sign = 1;
     long long sum  = 0;
@@ -138,9 +163,63 @@ long long calculate_determinant(const Matrix& m)
     return sum;
 }
 
+void call_calculate_determinant(long long& det, const Matrix& m)
+{
+    det = calculate_determinant(m);
+}
+
+long long parallel_calculate_determinant(const Matrix& m)
+{
+    std::vector<std::thread> workers;
+    std::vector<long long>   subdets(Matrix::workers_max, 0);
+    std::mutex mtx;
+
+    std::cout << "!!!\n";
+
+    for (int i = 0; i < m.get_size(); i++)
+    {
+        std::cout << "!4\n";
+        Matrix minor = m.select_minor(0,i);
+        if (Matrix::workers_count < Matrix::workers_max)
+        {
+            std::cout << "!5\n"; 
+            workers.push_back(std::move(std::thread(call_calculate_determinant, 
+                              std::ref(subdets[i]),
+                              minor)));
+            Matrix::workers_count++; 
+        }
+        else
+        {
+            std::cout << "!6\n";
+            mtx.lock();
+            subdets[i] = calculate_determinant(m.select_minor(0,i));
+            mtx.unlock();
+        }
+    }
+    for (auto& i : workers)
+    {
+        i.join();
+    }
+    long long det  = 0;
+    int       sign = 1;
+    for (int i = 0; i < m.get_size(); i++)
+    {
+        det += sign * m[0][i] * subdets[i];
+        sign *= -1;
+    }
+    return det;
+}
+
 long long Matrix::determinant()
 {
-    return calculate_determinant(*this);
+    if (Matrix::is_parallel)
+    {
+        return parallel_calculate_determinant(*this);
+    }
+    else
+    {    
+        return calculate_determinant(*this);
+    }
 }
 
 }

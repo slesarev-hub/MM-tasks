@@ -2,36 +2,47 @@
 #define MATRIX_H
 
 #include <thread>
+#include <atomic>
 #include <vector>
 
-namespace matrix_determinant
+namespace matrix
 {
 
 class Matrix
 {
 public:
+    Matrix();
+    ~Matrix();
     Matrix(int);
-    Matrix(const Matrix&);
+    Matrix(Matrix const&);
     Matrix(Matrix&&) = delete;
 
     bool    operator==(const Matrix&);
-    Matrix& operator=(const Matrix&);
+    Matrix& operator=(Matrix const&);
     Matrix& operator=(Matrix&&) = delete;
 
-    int get_size() const;
-    std::vector<int>& operator[](int);
+    int                     get_size() const;
+    static void             set_is_parallel(bool is_parallel);
+    static void             set_workers(int max, int count);
+    std::vector<int>&       operator[](int);
     const std::vector<int>& operator[](int) const;
 
     friend std::istream& operator>>(std::istream& in, Matrix& m);
     friend std::ostream& operator<<(std::ostream& out, const Matrix& m);
 
-    Matrix select_minor(int row, int col) const;
+    Matrix    select_minor(int row, int col) const;
     long long determinant();
+    friend long long parallel_calculate_determinant(const Matrix& m);
 
+    static bool                   is_parallel;
 private:
     int                           size;
     std::vector<std::vector<int>> source;
+    static std::atomic<int> workers_max;
+    static std::atomic<int> workers_count;
 };
+
+long long parallel_calculate_determinant(const Matrix& m);
 
 }
 #endif

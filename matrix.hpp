@@ -15,15 +15,14 @@ public:
     ~Matrix();
     Matrix(int);
     Matrix(Matrix const&);
-    //Matrix(Matrix&&) = delete;
-
+    
     bool    operator==(const Matrix&);
     Matrix& operator=(Matrix const&);
-    //Matrix& operator=(Matrix&&) = delete;
-
+    
     int                     get_size() const;
     static void             set_is_parallel(bool is_parallel);
-    //static void             set_workers_max(int max);
+    static void             set_workers_max(int max);
+    static int              get_workers_max();
     std::vector<int>&       operator[](int);
     const std::vector<int>& operator[](int) const;
 

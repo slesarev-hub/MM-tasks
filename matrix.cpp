@@ -12,31 +12,23 @@ namespace matrix
 
 bool Matrix::is_parallel = false;
 std::atomic<int> Matrix::workers_count(0);
-int Matrix::workers_max = 6;
+int Matrix::workers_max  = 1;
 
 Matrix::Matrix()
-    : size(0), source(0)
-{
-    //std::cout << "Matrix() : " << this << "\n";
-}
+    : size(0), source(0){}
 
-Matrix::~Matrix()
-{
-    //std::cout << "~Matrix() : " << this << "\n";
-}
+Matrix::~Matrix(){}
 
 Matrix::Matrix(int size)
 {
     this->size = size;
     this->source.assign(size,std::vector<int>(size,-1));
-    //std::cout << "Matrix(" << size << ") : " << this << "\n";
 }
 
 Matrix::Matrix(Matrix const& other)
 {
     this->size   = other.size;
     this->source = other.source;
-    //std::cout << "Matrix(" << this << ") : " << this << "\n";
 }
 
 bool Matrix::operator==(const Matrix& other)
@@ -73,10 +65,15 @@ void Matrix::set_is_parallel(bool is_parallel)
     Matrix::is_parallel = is_parallel;
 }
 
-//void Matrix::set_workers_max(int max)
-//{
-//    Matrix::workers_max = max;
-//}
+void Matrix::set_workers_max(int max)
+{
+    Matrix::workers_max = max;
+}
+
+int Matrix::get_workers_max()
+{
+    return Matrix::workers_max;
+}
 
 std::vector<int>& Matrix::operator[](int idx)
 {
@@ -165,16 +162,17 @@ long long calculate_determinant(Matrix m)
 
 void call_calculate_determinant(long long& det, Matrix m)
 {
+   // std::cout << "ON CPU : " << sched_getcpu() << "\n";
     det = calculate_determinant(m);
 }
 
 long long parallel_calculate_determinant(Matrix m)
 {
+    Matrix::workers_count = 0;
+
     std::vector<std::thread> workers;
     std::vector<Matrix>      minors;
     std::vector<long long>   subdets(m.get_size(), 0);
-    std::mutex mtx;
-    mtx.lock();
             
     for (int i = 0; i < m.get_size(); i++)
     {
@@ -182,7 +180,7 @@ long long parallel_calculate_determinant(Matrix m)
     }        
     for (int i = 0; i < m.get_size(); i++)
     {
-        if (Matrix::workers_count < Matrix::workers_max)
+        if (Matrix::workers_count <= Matrix::workers_max)
         {
             workers.push_back(std::move(std::thread(call_calculate_determinant, 
                               std::ref(subdets[i]),
@@ -194,7 +192,6 @@ long long parallel_calculate_determinant(Matrix m)
             subdets[i] = calculate_determinant(minors[i]);
         }
     }   
-    mtx.unlock();    
     for (auto& i : workers)
     {
         i.join();
@@ -204,7 +201,6 @@ long long parallel_calculate_determinant(Matrix m)
     for (int i = 0; i < m.get_size(); i++)
     {
         det += sign * m[0][i] * subdets[i];
-        //std::cout << sign << "*" << m[0][i] << "*" << subdets[i] << " ";
         sign *= -1;
     }
     return det;

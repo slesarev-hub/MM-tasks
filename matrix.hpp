@@ -15,15 +15,15 @@ public:
     ~Matrix();
     Matrix(int);
     Matrix(Matrix const&);
-    Matrix(Matrix&&) = delete;
+    //Matrix(Matrix&&) = delete;
 
     bool    operator==(const Matrix&);
     Matrix& operator=(Matrix const&);
-    Matrix& operator=(Matrix&&) = delete;
+    //Matrix& operator=(Matrix&&) = delete;
 
     int                     get_size() const;
     static void             set_is_parallel(bool is_parallel);
-    static void             set_workers(int max, int count);
+    //static void             set_workers_max(int max);
     std::vector<int>&       operator[](int);
     const std::vector<int>& operator[](int) const;
 
@@ -32,17 +32,18 @@ public:
 
     Matrix    select_minor(int row, int col) const;
     long long determinant();
-    friend long long parallel_calculate_determinant(const Matrix& m);
+    friend long long parallel_calculate_determinant(Matrix m);
 
     static bool                   is_parallel;
+    static int workers_max;
+    
 private:
     int                           size;
     std::vector<std::vector<int>> source;
-    static std::atomic<int> workers_max;
     static std::atomic<int> workers_count;
 };
 
-long long parallel_calculate_determinant(const Matrix& m);
+long long parallel_calculate_determinant(Matrix m);
 
 }
 #endif

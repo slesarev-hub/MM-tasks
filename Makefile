@@ -12,7 +12,7 @@ matrix_calc: $(OBJS)
 
 clean:
 	@rm -f *.o
-	@rm -f det_calc_test
+	@rm -f matrix_calc
 
 #valgrind:
 #	valgrind --tool=memcheck --leak-check=full --verbose ./$(v_arg) 

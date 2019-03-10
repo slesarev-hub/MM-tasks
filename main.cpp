@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
         if (vm.count("parallel") == 1)
         {
             Matrix::set_is_parallel(true);
-            Matrix::set_workers(3,0);
+            //Matrix::set_workers_max(1);
         }
         if (vm.count("calculate") == 1)
         {

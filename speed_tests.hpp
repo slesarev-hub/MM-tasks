@@ -24,8 +24,6 @@ namespace speed_tests
         in >> matrix_size;
         Matrix matrix(matrix_size);
         in >> matrix;
-        std::cout << "!\n";
-        
         return matrix;
     }
 
@@ -38,15 +36,11 @@ namespace speed_tests
         auto np_start = std::chrono::steady_clock::now();
         long long not_parallel = m.determinant();
         auto np_end = std::chrono::steady_clock::now();
-        
-        std::cout << "!!\n";
 
         Matrix::set_is_parallel(true);
         auto p_start = std::chrono::steady_clock::now();
         long long parallel = m.determinant();
         auto p_end = std::chrono::steady_clock::now();
-
-        std::cout << "!!!\n";
 
         auto np_time = std::chrono::duration_cast<std::chrono::milliseconds>(np_end - np_start).count();
         auto  p_time = std::chrono::duration_cast<std::chrono::milliseconds>( p_end -  p_start).count();

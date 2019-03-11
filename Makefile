@@ -7,14 +7,14 @@ OBJS      = $(filter %.o,$(SRCS:.cpp=.o) $(SRCS:.cc=.o))
 matrix_calc: $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LIBS)  
 
+valgrind_matrix_calc : $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LIBS)  
+
 %.o: %.cc 
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -O0 -o $@
 
 clean:
 	@rm -f *.o
 	@rm -f matrix_calc
-
-#valgrind:
-#	valgrind --tool=memcheck --leak-check=full --verbose ./$(v_arg) 
 
 .PHONY: clean valgrind

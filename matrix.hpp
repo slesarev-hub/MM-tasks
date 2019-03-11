@@ -2,7 +2,6 @@
 #define MATRIX_H
 
 #include <thread>
-#include <atomic>
 #include <vector>
 
 namespace matrix
@@ -39,7 +38,6 @@ public:
 private:
     int                           size;
     std::vector<std::vector<int>> source;
-    static std::atomic<int> workers_count;
 };
 
 long long parallel_calculate_determinant(Matrix m);

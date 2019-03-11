@@ -11,7 +11,6 @@ namespace matrix
 {
 
 bool Matrix::is_parallel = false;
-std::atomic<int> Matrix::workers_count(0);
 int Matrix::workers_max  = 1;
 
 Matrix::Matrix()
@@ -166,32 +165,37 @@ void call_calculate_determinant(long long& det, Matrix m)
     det = calculate_determinant(m);
 }
 
+void calculate_subdets(std::vector<long long>& subdets, std::vector<Matrix> minors, int begin, int end)
+{
+    for (int i = begin; i < end; i++)
+    {
+        subdets[i] = calculate_determinant(minors[i]);
+    }
+}
+
 long long parallel_calculate_determinant(Matrix m)
 {
-    Matrix::workers_count = 0;
-
     std::vector<std::thread> workers;
     std::vector<Matrix>      minors;
     std::vector<long long>   subdets(m.get_size(), 0);
-            
+
     for (int i = 0; i < m.get_size(); i++)
     {
         minors.emplace_back(m.select_minor(0,i));
     }        
-    for (int i = 0; i < m.get_size(); i++)
+    int parallel_part = (Matrix::get_workers_max() == 0) ? (0)
+                                                         : (m.get_size() - m.get_size() % Matrix::get_workers_max());
+    int minors_in_thread = (Matrix::get_workers_max() == 0) ? (0) 
+                                                            : (parallel_part/Matrix::get_workers_max());
+    for (int i = 0; i < parallel_part; i += minors_in_thread)
     {
-        if (Matrix::workers_count <= Matrix::workers_max)
-        {
-            workers.push_back(std::move(std::thread(call_calculate_determinant, 
-                              std::ref(subdets[i]),
-                              std::ref(minors[i]))));
-            Matrix::workers_count++; 
-        }
-        else
-        {
-            subdets[i] = calculate_determinant(minors[i]);
-        }
-    }   
+        workers.emplace_back(calculate_subdets, 
+                            std::ref(subdets),
+                            minors,
+                            i, i + minors_in_thread);
+    
+    }
+    calculate_subdets(subdets, minors, parallel_part, m.get_size());   
     for (auto& i : workers)
     {
         i.join();

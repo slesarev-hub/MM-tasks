@@ -33,7 +33,7 @@ void SpeedTest::speed_test(std::string test_name)
     auto np_end = std::chrono::steady_clock::now();
     auto np_time = std::chrono::duration_cast<std::chrono::milliseconds>(np_end - np_start);
 
-    std::cout << "not_parallel : " << np_time.count() << "\n";
+    std::cout << "workers/time : \n0 " << np_time.count() << "\n";
 
     this->parallel_table[{0, m.get_size()}] = np_time;
     this->matrices_sizes.push_back(m.get_size());
@@ -49,7 +49,7 @@ void SpeedTest::speed_test(std::string test_name)
         auto  p_time = std::chrono::duration_cast<std::chrono::milliseconds>( p_end - p_start);
         this->parallel_table[{Matrix::get_workers_max(), m.get_size()}] = p_time;
         
-        std::cout << "time         : " << p_time.count() << " workers : " << i << "\n"; 
+        std::cout << i << " " << p_time.count() << "\n"; 
     }
     Matrix::set_workers_max(initial_workers_max);
 }

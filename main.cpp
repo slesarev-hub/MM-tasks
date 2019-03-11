@@ -12,14 +12,21 @@ int main(int argc, char **argv) {
         int workers_max = 1;
         po::options_description description{"Options"};
         description.add_options()
-        ("calculate,c", "COMMENT")
-        ("parallel,p", po::value<int>(&workers_max)->default_value(1), "COMMENT")
-        ("test,t", "COMMENT")
-        ("generate,g", "COMMENT");
+        ("help,h", "print description\n")
+        ("calculate,c", "calculate determinant of given matrix formatted like \'size elements frequency\'\n")
+        ("parallel,p", po::value<int>(&workers_max)->default_value(1), "sets given threads count, use it together with -c\n")
+        ("functionality_test", "test functions of Matrix class\n")
+        ("compare_speeds", "compare multithreading execution with single thread on set of matrices\n")
+        ("generate,g", "create set of matrices in \'sample_\' files\n");
         po::variables_map vm;
         po::store(parse_command_line(argc, argv, description), vm);
         po::notify(vm);
 
+        std::cout << "type --help to get description\n";
+        if (vm.count("help") == 1)
+        {
+            std::cout << description << "\n";
+        }
         if (vm.count("parallel") == 1)
         {
             Matrix::set_is_parallel(true);
@@ -29,13 +36,13 @@ int main(int argc, char **argv) {
         {
             std::cout << SpeedTest::read_matrix(std::cin).determinant() << std::endl;
         }
-        else if ((vm.count("test") == 1) && (vm.count("parallel") == 0))
+        else if (vm.count("functionality_test") == 1)
         {
             ::testing::InitGoogleTest(&argc, argv); 
             ::testing::GTEST_FLAG(filter) = "*select_minor*:*determinant*";
             return RUN_ALL_TESTS();
         }
-        else if ((vm.count("test") == 1) && (vm.count("parallel") == 1))
+        else if (vm.count("compare_speeds") == 1)
         {
             SpeedTest manager(
                 std::vector<std::string> {
@@ -54,7 +61,7 @@ int main(int argc, char **argv) {
         {
             std::default_random_engine generator;
             std::uniform_int_distribution<int> distribution(10,100);
-            std::vector<int> sizes = {3,4,5,6,7,8,9,10,11};
+            std::vector<int> sizes = {11};
             int no = 0;
             for (auto s : sizes)
             {

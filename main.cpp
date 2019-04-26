@@ -4,27 +4,31 @@
 #include <fstream>
 #include <random>
 #include <thread>
+#include <deque>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
-void read_and_run(Table& tbl, std::ifstream in, int thread_operations, std::mutex& mtx)
+void read_and_run(Table& tbl, std::deque<std::pair<char, char>> &operations_storage, int thread_operations, std::mutex& mtx)
 {
-    std::vector<std::pair<char, int>> operations;
-    char operation;
-    int  value;
-    mtx.lock();
     for (int i = 0; i < thread_operations; i++)
     {
-        in >> operation >> value;
-        operations.emplace_back(operation, value);
-    }
-    mtx.unlock();
-    for (auto [operation, value] : operations)
-    {
+        mtx.lock();
+        auto [operation, value] = operations_storage.front();
+        operations_storage.pop_front();
+        mtx.unlock();
+        Data data(value, "str-" + std::to_string(value));
         if (operation == 'a')
         {
-            tbl.put(Data(value, "str-" + std::to_string(value)));
+            tbl.put(data);
+        }
+        if (operation == 'f')
+        {
+            tbl.check(data);
+        }
+        if (operation == 'p')
+        {
+            tbl.remove(data);
         }
     }
 }
@@ -101,12 +105,18 @@ int main(int argc, char **argv)
         else if (vm.count("run") == 1)
         {
             std::ifstream in(test_name);
-            char operation;
-            int  value;
             int  operations_count;
             std::vector<std::thread> pool;
 
             in >> operations_count;
+            std::deque<std::pair<char, char>> operations_storage;
+            char operation;
+            char value;
+            for (int i = 0; i < operations_count; i++)
+            {
+                in >> operation >> value;
+                operations_storage.emplace_back(operation, value);
+            }
             int thread_operations = (operations_count - operations_count%workers)/workers;
 
             

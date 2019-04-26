@@ -15,7 +15,7 @@ bool Table::is_empty()
     return ((node_count == 0) && (data_count == 0));
 }
 
-void Table::put(Data& data)
+void Table::put(const Data& data)
 {
     int  key  = Table::hash(data);
     auto curr = this->head;

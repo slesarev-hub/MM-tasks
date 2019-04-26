@@ -6,6 +6,9 @@ Data::Data()
 Data::Data(int int_val, std::string str_val)
     : int_val(int_val), str_val(str_val){}
 
+Data::Data(const Data& other)
+    : int_val(other.int_val), str_val(other.str_val){}
+
 Data::~Data(){}
 
 void Data::set_int(int val)

@@ -11,8 +11,8 @@ class Node
 {
 public:
     Node();
-    Node(Data& data, std::shared_ptr<Node> prev, std::shared_ptr<Node> next, int key);
-    Node(Data& data, int key);
+    Node(const Data& data, std::shared_ptr<Node> prev, std::shared_ptr<Node> next, int key);
+    Node(const Data& data, int key);
     ~Node();
     Node(const Node& other);
     Node(Node& other) = delete;
@@ -23,7 +23,7 @@ public:
     void set_prev(std::shared_ptr<Node> prev);
     void set_next(std::shared_ptr<Node> next);
     void set_key(int key);
-    void add_source(Data& data);
+    void add_source(const Data& data);
 
     std::shared_ptr<Node> get_prev() const;
     std::shared_ptr<Node> get_next() const;

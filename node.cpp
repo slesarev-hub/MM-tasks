@@ -3,13 +3,13 @@
 Node::Node()
     : prev(nullptr), next(nullptr), key(-1){}
 
-Node::Node(Data& data, std::shared_ptr<Node> prev, std::shared_ptr<Node> next, int key)
+Node::Node(const Data& data, std::shared_ptr<Node> prev, std::shared_ptr<Node> next, int key)
     : prev(prev), next(next), key(key)
 {
     this->source.emplace_back(data);
 }
 
-Node::Node(Data& data, int key)
+Node::Node(const Data& data, int key)
     : key(key)
 {
     this->source.emplace_back(data);
@@ -44,7 +44,7 @@ void Node::set_key(int key)
     this->key = key;
 }
 
-void Node::add_source(Data& data)
+void Node::add_source(const Data& data)
 {
     this->source.emplace_back(data);
 }

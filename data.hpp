@@ -9,8 +9,6 @@ public:
     Data();
     Data(int int_val, std::string str_val);
     Data(const Data& other);
-    //Data(Data& other);
-    //Data(Data&& other);
     ~Data();
 
     void set_int(int val);

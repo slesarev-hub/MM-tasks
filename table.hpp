@@ -16,9 +16,9 @@ public:
 
     bool is_empty();
 
-    void put(Data& data);
-    void remove(Data& data);
-    bool check(Data& data);
+    void put(const Data& data);
+    void remove(const Data& data);
+    bool check(const Data& data);
 
 private:
     std::atomic<int> data_count;

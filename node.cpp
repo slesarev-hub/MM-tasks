@@ -1,10 +1,10 @@
 #include "node.hpp"
 
 Node::Node()
-    : prev(nullptr), next(nullptr), key(-1){}
+    : next(nullptr), key(-1){}
 
-Node::Node(const Data& data, std::shared_ptr<Node> prev, std::shared_ptr<Node> next, int key)
-    : prev(prev), next(next), key(key)
+Node::Node(const Data& data, std::shared_ptr<Node> next, int key)
+    : next(next), key(key)
 {
     this->source.emplace_back(data);
 }
@@ -29,11 +29,6 @@ void Node::unlock() const
     this->mtx.unlock();
 }
 
-void Node::set_prev(std::shared_ptr<Node> prev)
-{
-    this->prev = prev;
-}
-
 void Node::set_next(std::shared_ptr<Node> next)
 {
     this->next = next;
@@ -49,9 +44,24 @@ void Node::add_source(const Data& data)
     this->source.emplace_back(data);
 }
 
-std::shared_ptr<Node> Node::get_prev() const
+bool Node::is_stored(const Data& data)
 {
-    return this->prev;
+    return (std::find(this->source.begin(), this->source.end(), data) != this->source.end());
+}
+
+int Node::size()
+{
+    return this->source.size();
+}
+
+std::vector<Data>::iterator Node::find(const Data& data)
+{
+    return std::find(this->source.begin(), this->source.end(), data);
+}
+
+std::vector<Data>::iterator Node::erase(std::vector<Data>::iterator it)
+{
+    return this->source.erase(it);
 }
 
 std::shared_ptr<Node> Node::get_next() const
@@ -67,4 +77,15 @@ int Node::get_key() const
 std::mutex& Node::get_mutex() const
 {
     return this->mtx;
+}
+
+std::ostream& operator<<(std::ostream& out, const Node& n)
+{
+    out << "key : " << n.key << "\n";
+    for (auto& i : n.source)
+    {
+        out << " " << i; 
+    }
+    out << "\n";
+    return out;
 }

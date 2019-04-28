@@ -2,6 +2,7 @@
 #define DATA_H
 
 #include <string>
+#include <iostream>
 
 class Data
 {
@@ -19,6 +20,8 @@ public:
 
     Data& operator=(const Data& other);
     bool operator==(const Data& other);
+
+    friend std::ostream& operator<<(std::ostream& out, const Data& d);
 
 private:
     int          int_val;

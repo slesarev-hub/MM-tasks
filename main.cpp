@@ -9,7 +9,7 @@
 
 namespace po = boost::program_options;
 
-void read_and_run(Table& tbl, std::deque<std::pair<char, char>> &operations_storage, int thread_operations, std::mutex& mtx)
+void read_and_run(Table& tbl, std::deque<std::pair<char, int>> &operations_storage, int thread_operations, std::mutex& mtx)
 {
     for (int i = 0; i < thread_operations; i++)
     {
@@ -22,11 +22,11 @@ void read_and_run(Table& tbl, std::deque<std::pair<char, char>> &operations_stor
         {
             tbl.put(data);
         }
-        if (operation == 'f')
+        else if (operation == 'f')
         {
             tbl.check(data);
         }
-        if (operation == 'p')
+        else if (operation == 'p')
         {
             tbl.remove(data);
         }
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
         ("range", po::value<int>(&range)->default_value(0), "")
         ("run", "")
         ("workers", po::value<int>(&workers)->default_value(0), "")
-        ("file", po::value<std::string>(&test_name)->default_value("test_0.txt"), "");
+        ("file", po::value<std::string>(&test_name)->default_value("test.txt"), "");
         po::variables_map vm;
         po::store(parse_command_line(argc, argv, description), vm);
         po::notify(vm);
@@ -109,17 +109,37 @@ int main(int argc, char **argv)
             std::vector<std::thread> pool;
 
             in >> operations_count;
-            std::deque<std::pair<char, char>> operations_storage;
+            std::deque<std::pair<char, int>> operations_storage;
             char operation;
-            char value;
+            int value;
             for (int i = 0; i < operations_count; i++)
             {
                 in >> operation >> value;
                 operations_storage.emplace_back(operation, value);
             }
-            int thread_operations = (operations_count - operations_count%workers)/workers;
 
-            
+            Table tbl;
+            std::mutex mtx;
+            if (workers != 0)
+            {
+                int thread_operations = (operations_count - operations_count%workers)/workers;
+                for (int i = 0; i < workers; i++)
+                {
+                    pool.emplace_back(read_and_run, std::ref(tbl), std::ref(operations_storage),
+                                                    thread_operations, std::ref(mtx));
+
+                }
+                read_and_run(tbl, operations_storage, operations_count%workers, mtx);
+                for (auto& i : pool)
+                {
+                    i.join();
+                }
+            }
+            else
+            {
+                read_and_run(tbl, operations_storage, operations_count, mtx);
+            }
+            std::cout << tbl;
         }
     }
     catch (const po::error &ex)

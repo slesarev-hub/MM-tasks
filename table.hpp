@@ -20,13 +20,16 @@ public:
     void remove(const Data& data);
     bool check(const Data& data);
 
+    friend std::ostream& operator<<(std::ostream& out, const Table& t);
+    friend std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> find_position(const Table& tbl, int key);
+
 private:
     std::atomic<int> data_count;
     std::atomic<int> node_count;
-   
-    std::mutex mtx;
 
-    std::shared_ptr<Node> head; 
+    std::shared_ptr<Node> head;    
+    mutable std::mutex mtx;
+
 };
 
 #endif

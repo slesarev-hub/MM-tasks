@@ -5,7 +5,7 @@ SRCS      = $(wildcard *.cpp)
 OBJS      = $(filter %.o,$(SRCS:.cpp=.o) $(SRCS:.cc=.o))
 
 table: $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LIBS)  
+	$(CXX) -g $(OBJS) -o $@ $(LIBS)  
 
 %.o: %.cc 
 	$(CXX) $(CXXFLAGS) -c $< -O3 -o $@

@@ -42,3 +42,9 @@ bool Data::operator==(const Data& other)
 {
     return ((this->int_val == other.int_val) && (this->str_val == other.str_val));
 }
+
+std::ostream& operator<<(std::ostream& out, const Data& d)
+{
+    out << d.get_int();
+    return out;
+}

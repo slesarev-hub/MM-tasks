@@ -15,26 +15,38 @@ bool Table::is_empty()
     return ((node_count == 0) && (data_count == 0));
 }
 
+void lock_if_not_null(std::shared_ptr<Node> node)
+{
+    if (node != nullptr)
+    {
+        node->lock();
+    }
+}
+
+void unlock_if_not_null(std::shared_ptr<Node> node)
+{
+    if (node != nullptr)
+    {
+        node->unlock();
+    }
+}
+
 std::pair<std::shared_ptr<Node>,
           std::shared_ptr<Node>> find_position(const Table& tbl, int key) 
 {
     auto fst_node = tbl.head;
     fst_node->lock();
-    auto snd_node = fst_node->get_next();
-    if (snd_node != nullptr)
+    auto snd_node = tbl.head->get_next();
+    while(snd_node != nullptr)
     {
         snd_node->lock();
-    }
-    while((key > fst_node->get_key()) && (snd_node != nullptr) && (key >= snd_node->get_key()))
-    {
-        if (snd_node->get_next() != nullptr)
+        if (snd_node->get_key() >= key)
         {
-            snd_node->get_next()->lock();
+            break;
         }
+        fst_node->unlock();
+        fst_node = snd_node;
         snd_node = snd_node->get_next();
-        auto zero_node = fst_node;
-        fst_node = fst_node->get_next();
-        zero_node->unlock();
     }
     return {fst_node, snd_node};
 }
@@ -57,41 +69,14 @@ void Table::put(const Data& data)
         fst_node->set_next(new_node);    
         this->node_count++;
     }
-    fst_node->unlock();
-    if (snd_node != nullptr)
-    {
-        snd_node->unlock();
-    }
+    unlock_if_not_null(fst_node);
+    unlock_if_not_null(snd_node);
 }
 
 void Table::remove(const Data& data)
 {
     int key = Table::hash(data);
-    auto fst_node = this->head;
-    fst_node->lock();
-    auto snd_node = fst_node->get_next();
-    if (snd_node != nullptr)
-    {
-        snd_node->lock();
-    }
-    auto thrd_node = (snd_node == nullptr) ? (nullptr) : (snd_node->get_next());
-    if (thrd_node != nullptr)
-    {
-        thrd_node->lock();
-    }
-    while((key > fst_node->get_key()) && (snd_node != nullptr) && (key > snd_node->get_key())
-                                      && (thrd_node != nullptr) && (key >= thrd_node->get_key()))
-    {
-        auto zero_node = fst_node;
-        fst_node  = snd_node;
-        snd_node  = thrd_node;
-        if (thrd_node->get_next() != nullptr)
-        {
-            thrd_node->get_next()->lock();
-        }
-        thrd_node = thrd_node->get_next();
-        zero_node->unlock();
-    }
+    auto [fst_node, snd_node] = find_position(*this, key); // nodes were locked in function
 
     if ((snd_node != nullptr) && (snd_node->get_key() == key) && snd_node->is_stored(data))
     {
@@ -99,30 +84,42 @@ void Table::remove(const Data& data)
         this->data_count--;
         if (snd_node->size() == 0)
         {
-            if (fst_node != nullptr)
-            {
-                fst_node->set_next(thrd_node);
-            }
+            //if (fst_node != nullptr)
+            //{
+                this->mtx.lock();
+                //fst_node->set_next(snd_node->get_next());
+                this->mtx.unlock();
+            //}
             this->node_count--;
         }
     }
-    for (auto& i : {fst_node, snd_node, thrd_node})
-    {
-        if (i != nullptr)
-        {
-            i->unlock();
-        }
-    }
+    unlock_if_not_null(fst_node);
+    unlock_if_not_null(snd_node);
 }
 
-bool Table::check(const Data& data)
+void Table::check(const Data& data) const
 {
     int key = Table::hash(data);
     auto [fst_node, snd_node] = find_position(*this, key);
     bool result = (fst_node->get_key() == key) && (fst_node->is_stored(data));
-    fst_node->unlock();
-    snd_node->unlock();
-    return result;
+    if (fst_node != nullptr)
+    {
+        fst_node->unlock();
+    }
+    if (snd_node != nullptr)
+    {
+        snd_node->unlock();
+    }
+    this->mtx.lock();
+    if (result)
+    {
+        //std::cout << data.get_int() << " found\n";
+    }
+    else
+    {
+        //std::cout << data.get_int() << " not found\n";
+    }
+    this->mtx.unlock();
 }
 
 std::ostream& operator<<(std::ostream& out, const Table& t)

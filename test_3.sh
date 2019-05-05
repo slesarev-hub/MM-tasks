@@ -1,7 +1,7 @@
 #!/bin/bash
 
 file="test_3.txt"
-./table --generate --add 1000 --range 200 --file ${file}
+./table --generate --add 4 --find 0 --pop 3 --range 200 --file ${file}
 
 workers="5"
 

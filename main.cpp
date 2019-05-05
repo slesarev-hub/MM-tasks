@@ -139,7 +139,7 @@ int main(int argc, char **argv)
             {
                 read_and_run(tbl, operations_storage, operations_count, mtx);
             }
-            std::cout << tbl;
+            //std::cout << tbl;
         }
     }
     catch (const po::error &ex)

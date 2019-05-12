@@ -11,6 +11,7 @@ class Consumer_1 : public Consumer
 public:
     Consumer_1();
     ~Consumer_1();
+    Consumer_1(int flush_limit);
 
     void notify_one() const;
 
@@ -18,6 +19,7 @@ public:
 
 private:
     mutable std::condition_variable send_condition;
+    int                             flush_limit;
 };
 
 class Producer_1 : Producer

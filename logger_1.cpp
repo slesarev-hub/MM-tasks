@@ -5,6 +5,9 @@ Consumer_1::Consumer_1()
 
 Consumer_1::~Consumer_1(){}
 
+Consumer_1::Consumer_1(int flush_limit)
+    : Consumer(), flush_limit(flush_limit){}
+
 void Consumer_1::notify_one() const
 {
     this->send_condition.notify_one();
@@ -16,16 +19,21 @@ void Consumer_1::log_source(int producers_count, std::ostream& out)
     for(;;)
     {
         std::unique_lock<std::mutex> lock_1(this->mtx);
-        this->send_condition.wait(lock_1, [&](){return this->producers_count <= 0;});
+        this->send_condition.wait(lock_1, [&]()
+                             {return this->flush_limit = this->source_pool.size();});
+        for (int i = 0; i < this->flush_limit; i++)
+        {
+            std::cout << this->source_pool.front();
+            this->source_pool.pop_front();
+        }
+        std::cout.flush();
         lock_1.unlock();
-        break;
+        if (this->producers_count <= 0)
+        {
+            break;
+        }
     }
-    std::cout << "   " << this->source_pool.size() << "\n";
-    for (auto i : this->source_pool)
-    {
-        std::cout << i;
-    }
-    std::cout.flush();
+    
 }
 
 
@@ -51,13 +59,10 @@ void Producer_1::send(Consumer_1& consumer, int number_of_parcels)
         
         std::lock_guard<Consumer> lock_1(consumer);
         consumer.push_back(data);
+        consumer.notify_one();
         if (i == number_of_parcels - 1)
         {
-            consumer.producers_count--;    
-        }
-        if (consumer.producers_count <= 0)
-        {
-            consumer.notify_one();
+            consumer.producers_count--;        
         }
     }
 }

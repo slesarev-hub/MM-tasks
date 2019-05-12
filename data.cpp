@@ -35,6 +35,6 @@ void Data::mark_as_last()
 std::ostream& operator<<(std::ostream& out, const Data& d)
 {
     out << "thread: "  + std::to_string(d.thread_id) +
-            "source: " + d.source + "\n";
+            " source: " + d.source + "\n";
     return out;
 }

@@ -8,10 +8,10 @@ logger: $(OBJS)
 	$(CXX) -g $(OBJS) -o $@ $(LIBS)  
 
 %.o: %.cc 
-	$(CXX) $(CXXFLAGS) -c $< -O3 -o $@
+	$(CXX) $(CXXFLAGS) -c $< -O3 $@
 
 clean:
 	@rm -f *.o
-	@rm -f table
+	@rm -f logger
 
 .PHONY: clean 

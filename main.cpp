@@ -6,44 +6,19 @@
 
 namespace po = boost::program_options;
 
-// UNIQUE LOCK ПОЧЕМУ НЕ ПРОСТО LOCK???
-
-
 
 int main(int argc, char **argv)
 {
-    try
-    {
-        int workers;
-        int add;
-        int pop;
-        int find;
-        std::string test_name;
-        int range;
-        po::options_description description{"Options"};
-        description.add_options()
-        ("help,h", "print description\n")
-        ("iterations", "")
-        ("time_range", po::value<int>(&add)->default_value(0), "")
-        ("logger_type", "")
-        ("workers", po::value<int>(&workers)->default_value(0), "")
-        ("file", po::value<std::string>(&test_name)->default_value("test.txt"), "");
-        po::variables_map vm;
-        po::store(parse_command_line(argc, argv, description), vm);
-        po::notify(vm);
+    Consumer_1 consumer;
+    Producer_1 producer2(std::chrono::milliseconds(10));
+    Producer_1 producer3(std::chrono::milliseconds(100));
+    std::ofstream out("test.txt");
+    std::thread t1(&Consumer_1::log_source, &consumer, 2, std::ref(out));
+    std::thread t2(&Producer_1::send, &producer2, std::ref(consumer), 10);
+    std::thread t3(&Producer_1::send, &producer3, std::ref(consumer), 10);
 
-        logger_1::Consumer consumer(2);
-        logger_1::Producer producer(std::chrono::milliseconds(1000));
-        std::ofstream out("test.txt");
-        std::thread t1(&logger_1::Consumer::log_source, &consumer, 1, std::ref(out));
-        std::thread t2(&logger_1::Producer::send, &producer, std::ref(consumer), 10);
-
-        t1.join();
-        t2.join();
-    }
-    catch (const po::error &ex)
-    {
-        std::cerr << ex.what() << '\n';
-    }
+    t3.detach();
+    t2.detach();
+    t1.join();
     return 0;
 }

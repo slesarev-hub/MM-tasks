@@ -1,90 +1,63 @@
 #include "logger_1.hpp"
 
-namespace logger_1
-{
+Consumer_1::Consumer_1()
+    : Consumer(){}
 
-Consumer::Consumer()
-    : flush_limit(0), connections_count(0){}
+Consumer_1::~Consumer_1(){}
 
-Consumer::~Consumer(){}
-
-Consumer::Consumer(int flush_limit)
-    : flush_limit(flush_limit), connections_count(0){}
-
-void Consumer::lock() const
-{
-    this->lock();
-}
-
-void Consumer::unlock() const
-{
-    this->unlock();
-}
-
-bool Consumer::try_lock() const
-{
-    return this->try_lock();
-}
-
-void Consumer::notify_one() const
+void Consumer_1::notify_one() const
 {
     this->send_condition.notify_one();
 }
 
-void Consumer::push_back(const Data& data)
-{
-    this->source_pool.push_back(data);
-}
-
-void Consumer::log_source(int producers_count, std::ofstream& out)
-{
-    this->connections_count = producers_count;
+void Consumer_1::log_source(int producers_count, std::ostream& out)
+{        
+    this->producers_count = producers_count;
     for(;;)
     {
         std::unique_lock<std::mutex> lock_1(this->mtx);
-        send_condition.wait(lock_1, [&]{return !this->source_pool.empty();});
-        if (this->source_pool.size() >= this->flush_limit)
-        {
-            std::move(begin(this->source_pool), end(this->source_pool),
-                            std::ostream_iterator<Data>(out));
-        }
+        this->send_condition.wait(lock_1, [&](){return this->producers_count <= 0;});
         lock_1.unlock();
-        if (this->connections_count <= 0)
-        {
-            break;
-        }
+        break;
     }
+    std::cout << "   " << this->source_pool.size() << "\n";
+    for (auto i : this->source_pool)
+    {
+        std::cout << i;
+    }
+    std::cout.flush();
 }
 
-void Consumer::decrease_connections_count()
+
+std::atomic<int> Producer_1::current_producers{0};
+
+Producer_1::Producer_1()
+    : Producer(), id(Producer_1::current_producers++){}
+
+Producer_1::~Producer_1()
 {
-    this->connections_count--;
+    Producer_1::current_producers--;
 }
 
-int Producer::producers_created = 1;
+Producer_1::Producer_1(std::chrono::milliseconds sleep_time)
+    : Producer(sleep_time), id(Producer_1::current_producers++){}
 
-Producer::Producer()
-    : sleep_time(1000), id(Producer::producers_created++){}
-
-Producer::~Producer(){}
-
-Producer::Producer(std::chrono::milliseconds sleep_time)
-    : sleep_time(sleep_time), id(Producer::producers_created++){}
-
-void Producer::send(Consumer& consumer, int number_of_parcels)
+void Producer_1::send(Consumer_1& consumer, int number_of_parcels)
 {
     for (int i = 0; i < number_of_parcels; i++)
     {
         Data data(std::to_string(i));
         std::this_thread::sleep_for(this->sleep_time);
-        if (i == number_of_parcels - 1)
-        {
-            consumer.decrease_connections_count();
-        }
+        
         std::lock_guard<Consumer> lock_1(consumer);
         consumer.push_back(data);
-        consumer.notify_one();
+        if (i == number_of_parcels - 1)
+        {
+            consumer.producers_count--;    
+        }
+        if (consumer.producers_count <= 0)
+        {
+            consumer.notify_one();
+        }
     }
 }
-
-};

@@ -1,60 +1,37 @@
 #ifndef LOGGER_1
 #define LOGGER_1
 
-#include "data.hpp"
+#include "logger.hpp"
 
-#include <chrono>
-#include <deque>
+#include <atomic>
 #include <condition_variable>
-#include <iostream>
-#include <iterator>
-#include <fstream>
 
-namespace logger_1
-{
-
-class Consumer
+class Consumer_1 : public Consumer
 {
 public:
-    Consumer();
-    ~Consumer();
-    Consumer(int flush_limit);
+    Consumer_1();
+    ~Consumer_1();
 
-    void lock()       const;
-    void unlock()     const; 
-    bool try_lock()   const;
     void notify_one() const;
 
-    void push_back(const Data& data);
-
-    void log_source(int producers_count, std::ofstream& out);
-
-    void decrease_connections_count();
+    void log_source(int producers_count, std::ostream& out);
 
 private:
-    mutable std::mutex              mtx;
     mutable std::condition_variable send_condition;
-    
-    int              connections_count;
-    int              flush_limit; 
-    std::deque<Data> source_pool;
 };
 
-class Producer 
+class Producer_1 : Producer
 {
 public:
-    Producer();
-    ~Producer();
-    Producer(std::chrono::milliseconds sleep_time);
+    Producer_1();
+    ~Producer_1();
+    Producer_1(std::chrono::milliseconds sleep_time);
 
-    void send(Consumer& consumer, int number_of_parcels);
+    void send(Consumer_1& consumer, int number_of_parcels);
 
 private:
-    static int                producers_created;
-    const  int                id;
-    std::chrono::milliseconds sleep_time;
-};
-
+    int                     id;
+    static std::atomic<int> current_producers;
 };
 
 #endif

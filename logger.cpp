@@ -31,5 +31,15 @@ Producer::Producer()
 
 Producer::~Producer(){}
 
-Producer::Producer(std::chrono::milliseconds sleep_time)
-    : sleep_time(sleep_time){}
+Producer::Producer(int sleep_time)
+    : sleep_time(std::chrono::milliseconds(sleep_time)){}
+
+
+void write_to_stream(std::deque<Data>& source, std::ostream& out)
+{
+    out << "\n" << source.size() << " elements\n";
+    std::move(begin(source), end(source),
+                    std::ostream_iterator<Data>(out));
+    source.clear();
+    out.flush();       
+}

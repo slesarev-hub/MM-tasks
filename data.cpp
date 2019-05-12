@@ -15,12 +15,18 @@ int to_int(const std::thread::id id)
 }
 
 Data::Data()
-    : source("default source"), thread_id(to_int(std::this_thread::get_id())), last_chunk_flag(false){}
+    : source("default source"), 
+      thread_id(to_int(std::this_thread::get_id())),
+      thread_info("default"),
+      last_chunk_flag(false){}
 
 Data::~Data(){}
 
 Data::Data(std::string source)
-    : source(source), thread_id(to_int(std::this_thread::get_id())), last_chunk_flag(false){}
+    : source(source), 
+      thread_id(to_int(std::this_thread::get_id())),
+      thread_info("default"),
+      last_chunk_flag(false){}
 
 bool Data::is_last_chunk()
 {
@@ -32,9 +38,15 @@ void Data::mark_as_last()
     this->last_chunk_flag = true;
 }
 
+void Data::set_thread_info(std::string info)
+{
+    this->thread_info = info;
+}
+
 std::ostream& operator<<(std::ostream& out, const Data& d)
 {
-    out << "thread: "  + std::to_string(d.thread_id) +
-            " source: " + d.source + "\n";
+    out << "thread: "  + std::to_string(d.thread_id) + 
+           " sleep: " + d.thread_info + 
+           " source: " + d.source + "\n";
     return out;
 }

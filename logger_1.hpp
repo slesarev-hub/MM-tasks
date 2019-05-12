@@ -3,7 +3,6 @@
 
 #include "logger.hpp"
 
-#include <atomic>
 #include <condition_variable>
 
 class Consumer_1 : public Consumer
@@ -11,27 +10,26 @@ class Consumer_1 : public Consumer
 public:
     Consumer_1();
     ~Consumer_1();
-    Consumer_1(int flush_limit);
-
+    
     void notify_one() const;
 
     void log_source(int producers_count, std::ostream& out);
 
 private:
-    mutable std::condition_variable send_condition;
-    int                             flush_limit;
+    mutable std::condition_variable log_condition;
 };
 
-class Producer_1 : Producer
+class Producer_1 : public Producer
 {
 public:
     Producer_1();
     ~Producer_1();
-    Producer_1(std::chrono::milliseconds sleep_time);
+    Producer_1(int sleep_time, int number_of_parcels);
 
-    void send(Consumer_1& consumer, int number_of_parcels);
+    void send(Consumer_1& consumer);
 
 private:
+    int                     number_of_parcels;
     int                     id;
     static std::atomic<int> current_producers;
 };

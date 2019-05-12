@@ -10,7 +10,7 @@ Consumer_2::Consumer_2(int flush_limit)
 
 void Consumer_2::notify_one() const
 {
-    this->send_condition.notify_one();
+    this->log_condition.notify_one();
 }
 
 void Consumer_2::log_source(int producers_count, std::ostream& out)
@@ -19,51 +19,50 @@ void Consumer_2::log_source(int producers_count, std::ostream& out)
     for(;;)
     {
         std::unique_lock<std::mutex> lock_1(this->mtx);
-        this->send_condition.wait(lock_1, [&](){return this->source_pool.size() >= this->flush_limit;});
-        for (int i = 0; i < this->flush_limit; i++)
-        {
-            std::cout << this->source_pool.front();
-            this->source_pool.pop_front();
-            std::cout.flush();
-        }
-        //std::move(begin(this->source_pool), end(this->source_pool),
-        //                std::ostream_iterator<Data>(out));
-        //out.flush();
-        lock_1.unlock();
+        this->log_condition.wait(lock_1, [&](){return this->source_pool.size() >= this->flush_limit;});
+        write_to_stream(this->source_pool, out);
+        
+        this->send_condition.notify_all();
         if (this->producers_count <= 0)
         {
+            write_to_stream(this->source_pool, out);
             break;
         }
     }
 }
 
 
-int Producer_2::current_producers = 0;
+std::atomic<int> Producer_2::current_producers{0};
 
 Producer_2::Producer_2()
-    : Producer(), id(Producer_2::current_producers++){}
+    : Producer(),
+      number_of_parcels(0), 
+      id(Producer_2::current_producers++){}
 
 Producer_2::~Producer_2(){
     Producer_2::current_producers--;
 }
 
-Producer_2::Producer_2(std::chrono::milliseconds sleep_time)
-    : Producer(sleep_time), id(Producer_2::current_producers--){}
+Producer_2::Producer_2(int sleep_time, int number_of_parcels)
+    : Producer(sleep_time),
+      number_of_parcels(number_of_parcels),
+      id(Producer_2::current_producers++){}
 
-void Producer_2::send(Consumer_2& consumer, int number_of_parcels)
+void Producer_2::send(Consumer_2& consumer)
 {
-    for (int i = 0; i < number_of_parcels; i++)
+    for (int i = 0; i < this->number_of_parcels; i++)
     {
         Data data(std::to_string(i));
         std::this_thread::sleep_for(this->sleep_time);
         
-        if (i == number_of_parcels - 1)
+        std::unique_lock<std::mutex> lock_1(consumer.mtx);
+        consumer.send_condition.wait(lock_1, 
+        [&](){return consumer.source_pool.size() <= consumer.flush_limit;});
+        consumer.push_back(data);
+        if (i == this->number_of_parcels - 1)
         {
             consumer.producers_count--;    
         }
-
-        std::lock_guard<Consumer> lock_1(consumer);
-        consumer.push_back(data);
         consumer.notify_one();
     }
 }

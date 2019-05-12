@@ -7,6 +7,7 @@
 #include <deque>
 #include <iostream>
 #include <iterator>
+#include <atomic>
 
 class Consumer
 {
@@ -20,12 +21,9 @@ public:
 
     void push_back(const Data& data);
 
-  //virtual void log_source(int producers_count, std::ostream& out) = 0;
-
-
+    std::atomic<int>   producers_count;
     std::deque<Data>   source_pool;
     mutable std::mutex mtx;    
-    int                producers_count;
 private:
 };
 
@@ -34,13 +32,12 @@ class Producer
 public:
     Producer();
     ~Producer();
-    Producer(std::chrono::milliseconds sleep_time);
-
-  //virtual void send(Consumer& consumer, int number_of_parcels) = 0;
-
+    Producer(int sleep_time);
 
     std::chrono::milliseconds sleep_time;    
 private:
 };
+
+void write_to_stream(std::deque<Data>& source, std::ostream& out);
 
 #endif

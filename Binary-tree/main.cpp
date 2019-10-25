@@ -294,9 +294,9 @@ TEST(bulk_load, 4_1) {
     read_and_run_bulk_load_tests("./test_4_1.txt");
 }
 
-TEST(bulk_load, 4_2) {
-    read_and_run_bulk_load_tests("./test_4_2.txt");
-}
+//TEST(bulk_load, 4_2) {
+//    read_and_run_bulk_load_tests("./test_4_2.txt");
+//}
 
 int main(int argc, char *argv[])
 {

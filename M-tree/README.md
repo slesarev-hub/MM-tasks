@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# MM-tasks
-=======
 # [M-Tree](http://www-db.deis.unibo.it/research/papers/SEBD97.pdf)
 Implementaion has a visualisation of M-Tree structure.
 ====
@@ -12,4 +9,3 @@ Implementaion has a visualisation of M-Tree structure.
 
 * 1000 points
 ![](1000-points.jpg)
->>>>>>> m-tree/master
